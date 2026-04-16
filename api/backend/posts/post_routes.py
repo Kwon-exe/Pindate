@@ -12,7 +12,7 @@ def get_post(post_id):
     try:
         # TODO: complete query
         cursor.execute("SELECT 1")
-        return jsonify(cursor.fetchall()), 200
+        return jsonify({"message": "TODO"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

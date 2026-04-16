@@ -12,7 +12,7 @@ def get_all_lists():
     try:
         # TODO: complete query
         cursor.execute("SELECT 1")
-        return jsonify(cursor.fetchall()), 200
+        return jsonify({"message": "TODO"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -43,7 +43,7 @@ def get_list(list_id):
     try:
         # TODO: complete query
         cursor.execute("SELECT 1")
-        return jsonify(cursor.fetchall()), 200
+        return jsonify({"message": "TODO"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

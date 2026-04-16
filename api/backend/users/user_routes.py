@@ -10,8 +10,13 @@ users = Blueprint('users', __name__)
 def get_all_users():
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT accountId, email, firstName, lastName, username, phoneNum, city, role, createdAt
+            FROM Users
+            ORDER BY createdAt DESC
+            """
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -25,10 +30,30 @@ def get_all_users():
 def create_user():
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        required = ['email', 'pwdHash', 'firstName', 'lastName', 'username']
+        missing = [field for field in required if not data.get(field)]
+        if missing:
+            return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
+
+        cursor.execute(
+            """
+            INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                data['email'],
+                data['pwdHash'],
+                data['firstName'],
+                data['lastName'],
+                data['username'],
+                data.get('phoneNum'),
+                data.get('city'),
+                data.get('role', 'CUSTOMER')
+            )
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "User created", "accountId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -41,9 +66,18 @@ def create_user():
 def get_user(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify(cursor.fetchall()), 200
+        cursor.execute(
+            """
+            SELECT accountId, email, firstName, lastName, username, phoneNum, city, role, createdAt
+            FROM Users
+            WHERE accountId = %s
+            """,
+            (user_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify(row), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -56,10 +90,32 @@ def get_user(user_id):
 def update_user(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        cursor.execute(
+            """
+            UPDATE Users
+            SET firstName = COALESCE(%s, firstName),
+                lastName = COALESCE(%s, lastName),
+                username = COALESCE(%s, username),
+                phoneNum = COALESCE(%s, phoneNum),
+                city = COALESCE(%s, city),
+                email = COALESCE(%s, email)
+            WHERE accountId = %s
+            """,
+            (
+                data.get('firstName'),
+                data.get('lastName'),
+                data.get('username'),
+                data.get('phoneNum'),
+                data.get('city'),
+                data.get('email'),
+                user_id
+            )
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify({"message": "User updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -72,9 +128,11 @@ def update_user(user_id):
 def delete_user(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
+        cursor.execute("DELETE FROM Users WHERE accountId = %s", (user_id,))
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify({"message": "User deleted"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -87,8 +145,17 @@ def delete_user(user_id):
 def get_user_reviews(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT r.reviewId, r.venueId, v.name AS venueName, r.rating, r.comment,
+                   r.isFlagged, r.createdAt
+            FROM Reviews r
+            JOIN Venues v ON v.venueId = r.venueId
+            WHERE r.userId = %s
+            ORDER BY r.createdAt DESC
+            """,
+            (user_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -102,8 +169,16 @@ def get_user_reviews(user_id):
 def get_user_flagged_reviews(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT r.reviewId, r.venueId, v.name AS venueName, r.rating, r.comment, r.createdAt
+            FROM Reviews r
+            JOIN Venues v ON v.venueId = r.venueId
+            WHERE r.userId = %s AND r.isFlagged = TRUE
+            ORDER BY r.createdAt DESC
+            """,
+            (user_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -117,8 +192,10 @@ def get_user_flagged_reviews(user_id):
 def get_user_lists(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            "SELECT listId, userId, name FROM Lists WHERE userId = %s ORDER BY listId",
+            (user_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -132,10 +209,17 @@ def get_user_lists(user_id):
 def create_user_list(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        name = data.get('name')
+        if not name:
+            return jsonify({"error": "'name' is required"}), 400
+
+        cursor.execute(
+            "INSERT INTO Lists (userId, name) VALUES (%s, %s)",
+            (user_id, name)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "List created", "listId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -148,8 +232,16 @@ def create_user_list(user_id):
 def get_saved_venues(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT v.venueId, v.name, v.city, v.address, v.rating, sv.savedAt
+            FROM SavedVenues sv
+            JOIN Venues v ON v.venueId = sv.venueId
+            WHERE sv.userId = %s
+            ORDER BY sv.savedAt DESC
+            """,
+            (user_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -163,10 +255,17 @@ def get_saved_venues(user_id):
 def save_venue(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        venue_id = data.get('venueId')
+        if not venue_id:
+            return jsonify({"error": "'venueId' is required"}), 400
+
+        cursor.execute(
+            "INSERT INTO SavedVenues (userId, venueId) VALUES (%s, %s)",
+            (user_id, venue_id)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Venue saved"}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -179,10 +278,19 @@ def save_venue(user_id):
 def unsave_venue(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        venue_id = data.get('venueId')
+        if not venue_id:
+            return jsonify({"error": "'venueId' is required"}), 400
+
+        cursor.execute(
+            "DELETE FROM SavedVenues WHERE userId = %s AND venueId = %s",
+            (user_id, venue_id)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Saved venue not found"}), 404
+        return jsonify({"message": "Venue removed from saved list"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -195,8 +303,17 @@ def unsave_venue(user_id):
 def get_visited_venues(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT v.venueId, v.name, v.city, v.address, v.rating
+            FROM ListVenue lv
+            JOIN Lists l ON l.listId = lv.listId
+            JOIN Venues v ON v.venueId = lv.venueId
+            WHERE l.userId = %s AND l.name = 'Visited'
+            ORDER BY v.name
+            """,
+            (user_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -210,10 +327,31 @@ def get_visited_venues(user_id):
 def mark_visited(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        venue_id = data.get('venueId')
+        if not venue_id:
+            return jsonify({"error": "'venueId' is required"}), 400
+
+        cursor.execute(
+            "SELECT listId FROM Lists WHERE userId = %s AND name = 'Visited'",
+            (user_id,)
+        )
+        row = cursor.fetchone()
+        if row:
+            list_id = row['listId']
+        else:
+            cursor.execute(
+                "INSERT INTO Lists (userId, name) VALUES (%s, 'Visited')",
+                (user_id,)
+            )
+            list_id = cursor.lastrowid
+
+        cursor.execute(
+            "INSERT IGNORE INTO ListVenue (listId, venueId) VALUES (%s, %s)",
+            (list_id, venue_id)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Venue marked as visited"}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -226,10 +364,23 @@ def mark_visited(user_id):
 def unmark_visited(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        venue_id = data.get('venueId')
+        if not venue_id:
+            return jsonify({"error": "'venueId' is required"}), 400
+
+        cursor.execute(
+            """
+            DELETE lv FROM ListVenue lv
+            JOIN Lists l ON l.listId = lv.listId
+            WHERE l.userId = %s AND l.name = 'Visited' AND lv.venueId = %s
+            """,
+            (user_id, venue_id)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Visited venue not found"}), 404
+        return jsonify({"message": "Venue unmarked as visited"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

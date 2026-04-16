@@ -29,6 +29,7 @@ def date_seeker_pages_nav():
     st.sidebar.page_link("pages/43_My_Reviews.py", label="My Reviews", icon="⭐")
     st.sidebar.page_link("pages/44_Venue_Reviews.py", label="Browse Reviews", icon="💬")
     st.sidebar.page_link("pages/45_Visited_Places.py", label="Visited Places", icon="📍")
+    st.sidebar.page_link("pages/46_Similar_Venues.py", label="Similar Venues", icon="✨")
 
 
 # ---- Sidebar assembly -------------------------------------------------------

@@ -10,9 +10,22 @@ reviews = Blueprint('reviews', __name__)
 def get_review(review_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify({"message": "TODO"}), 200
+        cursor.execute(
+            """
+            SELECT r.reviewId, r.userId, u.username, r.venueId,
+                   v.name AS venueName, r.rating, r.comment,
+                   r.isFlagged, r.createdAt
+            FROM Reviews r
+            JOIN Users u ON u.accountId = r.userId
+            JOIN Venues v ON v.venueId = r.venueId
+            WHERE r.reviewId = %s
+            """,
+            (review_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "Review not found"}), 404
+        return jsonify(row), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

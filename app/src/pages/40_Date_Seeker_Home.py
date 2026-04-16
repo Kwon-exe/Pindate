@@ -8,7 +8,7 @@ first_name = st.session_state.get("first_name", "there")
 st.title(f"Welcome, {first_name} (Date Seeker)")
 st.write("This is the starter page for one user persona. Use the links for search and saved spots.")
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
     if st.button("Discover Venues", use_container_width=True, type="primary"):
         st.switch_page("pages/41_Discover_Venues.py")
@@ -21,3 +21,6 @@ with col3:
 with col4:
     if st.button("Browse Reviews", use_container_width=True):
         st.switch_page("pages/44_Venue_Reviews.py")
+with col5:
+    if st.button("Visited Places", use_container_width=True):
+        st.switch_page("pages/45_Visited_Places.py")

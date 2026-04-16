@@ -23,6 +23,12 @@ def date_seeker_home_nav():
     )
 
 
+def date_seeker_pages_nav():
+    st.sidebar.page_link("pages/41_Discover_Venues.py", label="Discover Venues", icon="🔍")
+    st.sidebar.page_link("pages/42_Lists_and_Saves.py", label="Saved Venues", icon="🔖")
+    st.sidebar.page_link("pages/43_My_Reviews.py", label="My Reviews", icon="⭐")
+
+
 # ---- Sidebar assembly -------------------------------------------------------
 
 def SideBarLinks(show_home=False):
@@ -43,7 +49,10 @@ def SideBarLinks(show_home=False):
         home_nav()
 
     if st.session_state["authenticated"]:
-        date_seeker_home_nav()
+        role = st.session_state.get("role")
+        if role in ("date_planner", "date_seeker"):
+            date_seeker_home_nav()
+            date_seeker_pages_nav()
 
     # About link appears at the bottom for all roles
     about_page_nav()

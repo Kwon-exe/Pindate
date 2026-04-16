@@ -25,10 +25,22 @@ def get_review(review_id):
 def update_review(review_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        rating = data.get('rating')
+        comment = data.get('comment')
+        cursor.execute(
+            """
+            UPDATE Reviews
+            SET rating  = COALESCE(%s, rating),
+                comment = COALESCE(%s, comment)
+            WHERE reviewId = %s
+            """,
+            (rating, comment, review_id)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Review not found"}), 404
+        return jsonify({"message": "Review updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -41,9 +53,11 @@ def update_review(review_id):
 def delete_review(review_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
+        cursor.execute("DELETE FROM Reviews WHERE reviewId = %s", (review_id,))
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Review not found"}), 404
+        return jsonify({"message": "Review deleted"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

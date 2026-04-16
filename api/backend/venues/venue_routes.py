@@ -10,8 +10,13 @@ venues = Blueprint('venues', __name__)
 def get_all_venues():
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT venueId, name, city, address, rating, minPrice, maxPrice
+            FROM Venues
+            ORDER BY name
+            """
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -25,8 +30,37 @@ def get_all_venues():
 def search_venues():
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        city = request.args.get('city')
+        category_id = request.args.get('category_id', type=int)
+        vibe_id = request.args.get('vibe_id', type=int)
+        min_price = request.args.get('min_price', type=float)
+        max_price = request.args.get('max_price', type=float)
+        min_rating = request.args.get('min_rating', type=float)
+
+        cursor.execute(
+            """
+            SELECT DISTINCT v.venueId, v.name, v.description, v.city, v.address,
+                            v.rating, v.minPrice, v.maxPrice
+            FROM Venues v
+            LEFT JOIN VenueCategory vc ON vc.venueId = v.venueId
+            LEFT JOIN VenueVibe vv ON vv.venueId = v.venueId
+            WHERE (%s IS NULL OR v.city = %s)
+              AND (%s IS NULL OR vc.categoryId = %s)
+              AND (%s IS NULL OR vv.vibeId = %s)
+              AND (%s IS NULL OR v.minPrice >= %s)
+              AND (%s IS NULL OR v.maxPrice <= %s)
+              AND (%s IS NULL OR v.rating >= %s)
+            ORDER BY v.rating DESC, v.name
+            """,
+            (
+                city, city,
+                category_id, category_id,
+                vibe_id, vibe_id,
+                min_price, min_price,
+                max_price, max_price,
+                min_rating, min_rating
+            )
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -40,9 +74,28 @@ def search_venues():
 def get_venue(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify(cursor.fetchall()), 200
+        cursor.execute(
+            """
+            SELECT v.venueId, v.ownerId, v.name, v.description, v.address, v.city,
+                   v.phoneNum, v.rating, v.minPrice, v.maxPrice,
+                   ROUND(AVG(r.rating), 2) AS avgReviewRating,
+                   GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ') AS categories,
+                   GROUP_CONCAT(DISTINCT b.name ORDER BY b.name SEPARATOR ', ') AS vibes
+            FROM Venues v
+            LEFT JOIN Reviews r ON r.venueId = v.venueId
+            LEFT JOIN VenueCategory vc ON vc.venueId = v.venueId
+            LEFT JOIN Category c ON c.categoryId = vc.categoryId
+            LEFT JOIN VenueVibe vv ON vv.venueId = v.venueId
+            LEFT JOIN Vibe b ON b.vibeId = vv.vibeId
+            WHERE v.venueId = %s
+            GROUP BY v.venueId
+            """,
+            (venue_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "Venue not found"}), 404
+        return jsonify(row), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -55,10 +108,43 @@ def get_venue(venue_id):
 def create_venue_from_application(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        city = data.get('city')
+        if not city:
+            return jsonify({"error": "'city' is required to create venue"}), 400
+
+        cursor.execute(
+            """
+            SELECT ownerId, name, description, address, phone, minPrice, maxPrice, status
+            FROM VenueApplications
+            WHERE applicationId = %s
+            """,
+            (venue_id,)
+        )
+        app_row = cursor.fetchone()
+        if not app_row:
+            return jsonify({"error": "Application not found"}), 404
+        if app_row['status'] != 'APPROVED':
+            return jsonify({"error": "Application must be APPROVED first"}), 400
+
+        cursor.execute(
+            """
+            INSERT INTO Venues (ownerId, name, description, address, city, phoneNum, minPrice, maxPrice)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                app_row['ownerId'],
+                app_row['name'],
+                app_row['description'],
+                app_row['address'],
+                city,
+                app_row['phone'],
+                app_row['minPrice'],
+                app_row['maxPrice']
+            )
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Venue created", "venueId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -71,10 +157,34 @@ def create_venue_from_application(venue_id):
 def update_venue(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        cursor.execute(
+            """
+            UPDATE Venues
+            SET name = COALESCE(%s, name),
+                description = COALESCE(%s, description),
+                address = COALESCE(%s, address),
+                city = COALESCE(%s, city),
+                phoneNum = COALESCE(%s, phoneNum),
+                minPrice = COALESCE(%s, minPrice),
+                maxPrice = COALESCE(%s, maxPrice)
+            WHERE venueId = %s
+            """,
+            (
+                data.get('name'),
+                data.get('description'),
+                data.get('address'),
+                data.get('city'),
+                data.get('phoneNum'),
+                data.get('minPrice'),
+                data.get('maxPrice'),
+                venue_id
+            )
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Venue not found"}), 404
+        return jsonify({"message": "Venue updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -87,8 +197,19 @@ def update_venue(venue_id):
 def get_similar_venues(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT DISTINCT v.venueId, v.name, v.city, v.address, v.rating
+            FROM Venues v
+            JOIN VenueCategory vc ON vc.venueId = v.venueId
+            WHERE vc.categoryId IN (
+                SELECT categoryId FROM VenueCategory WHERE venueId = %s
+            )
+              AND v.venueId <> %s
+            ORDER BY v.rating DESC, v.name
+            """,
+            (venue_id, venue_id)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -102,8 +223,16 @@ def get_similar_venues(venue_id):
 def get_venue_categories(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT c.categoryId, c.name
+            FROM VenueCategory vc
+            JOIN Category c ON c.categoryId = vc.categoryId
+            WHERE vc.venueId = %s
+            ORDER BY c.name
+            """,
+            (venue_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -117,10 +246,19 @@ def get_venue_categories(venue_id):
 def update_venue_categories(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        category_ids = data.get('categoryIds')
+        if not isinstance(category_ids, list):
+            return jsonify({"error": "'categoryIds' must be a list"}), 400
+
+        cursor.execute("DELETE FROM VenueCategory WHERE venueId = %s", (venue_id,))
+        if category_ids:
+            cursor.executemany(
+                "INSERT INTO VenueCategory (venueId, categoryId) VALUES (%s, %s)",
+                [(venue_id, category_id) for category_id in category_ids]
+            )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        return jsonify({"message": "Venue categories updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -133,8 +271,16 @@ def update_venue_categories(venue_id):
 def get_venue_vibes(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT b.vibeId, b.name
+            FROM VenueVibe vv
+            JOIN Vibe b ON b.vibeId = vv.vibeId
+            WHERE vv.venueId = %s
+            ORDER BY b.name
+            """,
+            (venue_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -148,10 +294,19 @@ def get_venue_vibes(venue_id):
 def update_venue_vibes(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        vibe_ids = data.get('vibeIds')
+        if not isinstance(vibe_ids, list):
+            return jsonify({"error": "'vibeIds' must be a list"}), 400
+
+        cursor.execute("DELETE FROM VenueVibe WHERE venueId = %s", (venue_id,))
+        if vibe_ids:
+            cursor.executemany(
+                "INSERT INTO VenueVibe (venueId, vibeId) VALUES (%s, %s)",
+                [(venue_id, vibe_id) for vibe_id in vibe_ids]
+            )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        return jsonify({"message": "Venue vibes updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -164,8 +319,17 @@ def update_venue_vibes(venue_id):
 def get_venue_reviews(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT r.reviewId, r.userId, u.username, r.rating, r.comment,
+                   r.isFlagged, r.createdAt
+            FROM Reviews r
+            JOIN Users u ON u.accountId = r.userId
+            WHERE r.venueId = %s
+            ORDER BY r.createdAt DESC
+            """,
+            (venue_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -179,10 +343,22 @@ def get_venue_reviews(venue_id):
 def create_venue_review(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        user_id = data.get('userId')
+        rating = data.get('rating')
+        comment = data.get('comment')
+        if not user_id or rating is None:
+            return jsonify({"error": "'userId' and 'rating' are required"}), 400
+
+        cursor.execute(
+            """
+            INSERT INTO Reviews (userId, venueId, comment, rating)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (user_id, venue_id, comment, rating)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Review created", "reviewId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -195,8 +371,16 @@ def create_venue_review(venue_id):
 def get_venue_posts(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
+        cursor.execute(
+            """
+            SELECT p.postId, p.ownerId, u.username AS ownerUsername, p.content, p.postDate
+            FROM Posts p
+            JOIN Users u ON u.accountId = p.ownerId
+            WHERE p.venueId = %s
+            ORDER BY p.postDate DESC
+            """,
+            (venue_id,)
+        )
         return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
@@ -210,10 +394,18 @@ def get_venue_posts(venue_id):
 def create_venue_post(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        owner_id = data.get('ownerId')
+        content = data.get('content')
+        if not owner_id or not content:
+            return jsonify({"error": "'ownerId' and 'content' are required"}), 400
+
+        cursor.execute(
+            "INSERT INTO Posts (ownerId, venueId, content) VALUES (%s, %s, %s)",
+            (owner_id, venue_id, content)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Post created", "postId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

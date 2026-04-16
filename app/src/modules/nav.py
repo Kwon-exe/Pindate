@@ -32,6 +32,17 @@ def date_seeker_pages_nav():
     st.sidebar.page_link("pages/46_Similar_Venues.py", label="Similar Venues", icon="✨")
 
 
+# ---- Role: venue owner ------------------------------------------------------
+
+def venue_owner_home_nav():
+    st.sidebar.page_link("pages/10_Marcus_Home.py", label="Venue Owner Home", icon="🏪")
+
+
+def venue_owner_pages_nav():
+    st.sidebar.page_link("pages/11_Manage_Venue.py", label="Manage My Venue", icon="✏️")
+    st.sidebar.page_link("pages/12_Venue_Categorize.py", label="Categories & Vibes", icon="🏷️")
+
+
 # ---- Sidebar assembly -------------------------------------------------------
 
 def SideBarLinks(show_home=False):
@@ -56,6 +67,9 @@ def SideBarLinks(show_home=False):
         if role in ("date_planner", "date_seeker"):
             date_seeker_home_nav()
             date_seeker_pages_nav()
+        elif role == "venue_owner":
+            venue_owner_home_nav()
+            venue_owner_pages_nav()
 
     # About link appears at the bottom for all roles
     about_page_nav()

@@ -10,9 +10,8 @@ categories = Blueprint('categories', __name__)
 def get_all_categories():
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify({"message": "TODO"}), 200
+        cursor.execute("SELECT categoryId, name FROM Category ORDER BY name")
+        return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -25,10 +24,13 @@ def get_all_categories():
 def create_category():
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        name = data.get('name')
+        if not name:
+            return jsonify({"error": "'name' is required"}), 400
+        cursor.execute("INSERT INTO Category (name) VALUES (%s)", (name,))
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Category created", "categoryId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -41,10 +43,15 @@ def create_category():
 def update_category(cat_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        name = data.get('name')
+        if not name:
+            return jsonify({"error": "'name' is required"}), 400
+        cursor.execute("UPDATE Category SET name = %s WHERE categoryId = %s", (name, cat_id))
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Category not found"}), 404
+        return jsonify({"message": "Category updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -57,9 +64,11 @@ def update_category(cat_id):
 def delete_category(cat_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
+        cursor.execute("DELETE FROM Category WHERE categoryId = %s", (cat_id,))
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Category not found"}), 404
+        return jsonify({"message": "Category deleted"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

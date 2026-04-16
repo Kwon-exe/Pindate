@@ -140,6 +140,29 @@ def delete_user(user_id):
         cursor.close()
 
 
+# All venues owned by a user [Marcus-1]
+@users.route('/<int:user_id>/venues', methods=['GET'])
+def get_owner_venues(user_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        cursor.execute(
+            """
+            SELECT venueId, name, description, address, city, phoneNum,
+                   rating, minPrice, maxPrice
+            FROM Venues
+            WHERE ownerId = %s
+            ORDER BY name
+            """,
+            (user_id,)
+        )
+        return jsonify(cursor.fetchall()), 200
+    except Error as e:
+        current_app.logger.error(f'Error: {e}')
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+
 # All reviews written by a user [Maya-3, Marcus-4]
 @users.route('/<int:user_id>/reviews', methods=['GET'])
 def get_user_reviews(user_id):

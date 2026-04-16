@@ -18,9 +18,8 @@ def get_all_vibes():
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info('GET /vibes')
-        # TODO: SELECT * FROM Vibe
-        cursor.execute("SELECT 1")
-        return jsonify({"message": "TODO"}), 200
+        cursor.execute("SELECT vibeId, name FROM Vibe ORDER BY name")
+        return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -35,10 +34,13 @@ def create_vibe():
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info('POST /vibes')
-        data = request.get_json()
-        # TODO: INSERT INTO Vibe (name) VALUES (%s)
-        # get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        data = request.get_json(silent=True) or {}
+        name = data.get('name')
+        if not name:
+            return jsonify({"error": "'name' is required"}), 400
+        cursor.execute("INSERT INTO Vibe (name) VALUES (%s)", (name,))
+        get_db().commit()
+        return jsonify({"message": "Vibe created", "vibeId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -53,10 +55,15 @@ def update_vibe(vibe_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info(f'PUT /vibes/{vibe_id}')
-        data = request.get_json()
-        # TODO: UPDATE Vibe SET name = %s WHERE vibeId = %s
-        # get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        data = request.get_json(silent=True) or {}
+        name = data.get('name')
+        if not name:
+            return jsonify({"error": "'name' is required"}), 400
+        cursor.execute("UPDATE Vibe SET name = %s WHERE vibeId = %s", (name, vibe_id))
+        get_db().commit()
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Vibe not found"}), 404
+        return jsonify({"message": "Vibe updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -71,9 +78,11 @@ def delete_vibe(vibe_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         current_app.logger.info(f'DELETE /vibes/{vibe_id}')
-        # TODO: DELETE FROM Vibe WHERE vibeId = %s
-        # get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        cursor.execute("DELETE FROM Vibe WHERE vibeId = %s", (vibe_id,))
+        get_db().commit()
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Vibe not found"}), 404
+        return jsonify({"message": "Vibe deleted"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

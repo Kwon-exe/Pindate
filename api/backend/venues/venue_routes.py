@@ -418,6 +418,23 @@ def create_venue_review(venue_id):
         cursor.close()
 
 
+# Count of users who saved a venue [Marcus-1]
+@venues.route('/<int:venue_id>/saves', methods=['GET'])
+def get_venue_saves_count(venue_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT COUNT(*) AS count FROM SavedVenues WHERE venueId = %s",
+            (venue_id,)
+        )
+        return jsonify(cursor.fetchone()), 200
+    except Error as e:
+        current_app.logger.error(f'Error: {e}')
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+
 # All posts/events for a venue [Marcus-6, Maya-4]
 @venues.route('/<int:venue_id>/posts', methods=['GET'])
 def get_venue_posts(venue_id):

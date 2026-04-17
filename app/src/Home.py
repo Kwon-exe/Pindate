@@ -3,53 +3,47 @@ logging.basicConfig(format='%(filename)s:%(lineno)s:%(levelname)s -- %(message)s
 logger = logging.getLogger(__name__)
 
 import streamlit as st
-from modules.nav import SideBarLinks
+from modules.api_client import api_post, show_api_error
 
 st.set_page_config(layout='wide')
 
-st.session_state['authenticated'] = False
 
-SideBarLinks(show_home=True)
+st.session_state.setdefault('authenticated', False)
+st.session_state.setdefault('role', None)
+st.session_state.setdefault('first_name', None)
+st.session_state.setdefault('user_id', None)
 
 logger.info("Loading the Home page of the app")
+if st.session_state['authenticated']:
+    st.switch_page('pages/40_Date_Seeker_Home.py')
+
 st.title('PinDate')
 st.write('### Find, Rate, and Share Your Next Date Spot')
-st.write('##### Select a user to log in as:')
+st.write('##### Log in with your username and password hash:')
 
-st.divider()
+with st.form('login_form'):
+    username = st.text_input('Username', placeholder='mayac')
+    pwd_hash = st.text_input('Password hash', type='password', placeholder='password')
+    submitted = st.form_submit_button('Log In', type='primary', use_container_width=True)
 
-# Persona 1: Maya Chen (Regular User)
-if st.button("Login as Maya Chen - Date Planner", type='primary', use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'date_planner'
-    st.session_state['first_name'] = 'Maya'
-    st.session_state['user_id'] = 1
-    logger.info("Logging in as Date Planner: Maya Chen")
-    st.switch_page('pages/40_Date_Seeker_Home.py')
+if submitted:
+    if not username.strip() or not pwd_hash.strip():
+        st.warning('Enter both username and password hash.')
+    else:
+        user, err = api_post('/users/login', {'username': username.strip(), 'pwdHash': pwd_hash.strip()})
+        if err:
+            if '401' in err:
+                st.error('Invalid username or password hash.')
+            else:
+                show_api_error(err)
+        elif not user:
+            st.error('Invalid username or password hash.')
+        else:
+            st.session_state['authenticated'] = True
+            st.session_state['role'] = user.get('role')
+            st.session_state['first_name'] = user.get('firstName')
+            st.session_state['user_id'] = user.get('accountId')
+            logger.info("Logging in as %s (%s)", user.get('username'), user.get('role'))
+            st.switch_page('pages/40_Date_Seeker_Home.py')
 
-# Persona 2: Marcus Rivera (Venue Owner)
-if st.button("Login as Marcus Rivera - Venue Owner", type='primary', use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'venue_owner'
-    st.session_state['first_name'] = 'Marcus'
-    st.session_state['user_id'] = 4
-    logger.info("Logging in as Venue Owner: Marcus Rivera")
-    st.switch_page('pages/40_Date_Seeker_Home.py')
-
-# Persona 3: Joey Maple (Data Analyst)
-if st.button("Login as Joey Maple - Data Analyst", type='primary', use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'data_analyst'
-    st.session_state['first_name'] = 'Joey'
-    st.session_state['user_id'] = 9
-    logger.info("Logging in as Data Analyst: Joey Maple")
-    st.switch_page('pages/40_Date_Seeker_Home.py')
-
-# Persona 4: Josh Doe (Platform Admin)
-if st.button("Login as Josh Doe - Platform Admin", type='primary', use_container_width=True):
-    st.session_state['authenticated'] = True
-    st.session_state['role'] = 'admin'
-    st.session_state['first_name'] = 'Josh'
-    st.session_state['user_id'] = 7
-    logger.info("Logging in as Admin: Josh Doe")
-    st.switch_page('pages/40_Date_Seeker_Home.py')
+st.caption('Use the seeded hash values from the database if you are testing locally.')

@@ -211,28 +211,28 @@ CREATE TABLE AdminLog (
 
 
 INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role) VALUES
-   ('maya.chen@email.com',   '$2b$12$abc123', 'Maya',  'Chen',  'mayac',   '617-555-0101', 'Boston',    'CUSTOMER'),
-   ('james.park@email.com',  '$2b$12$def456', 'James', 'Park',  'jpark99', '617-555-0102', 'Cambridge', 'CUSTOMER'),
-   ('sofia.reyes@email.com', '$2b$12$ghi789', 'Sofia', 'Reyes', 'sofiaar', '617-555-0103', 'Somerville','CUSTOMER');
+   ('maya.chen@email.com',   'password', 'Maya',  'Chen',  'mayac',   '617-555-0101', 'Boston',    'CUSTOMER'),
+   ('james.park@email.com',  'password', 'James', 'Park',  'jpark99', '617-555-0102', 'Cambridge', 'CUSTOMER'),
+   ('sofia.reyes@email.com', 'password', 'Sofia', 'Reyes', 'sofiaar', '617-555-0103', 'Somerville','CUSTOMER');
 
 
 -- Venue Owners (role = 'VENUE_OWNER')
 INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, role) VALUES
-   ('marcus.r@venues.com',    '$2b$12$own111', 'Marcus', 'Rivera', 'marcusr_owner', '617-555-0201', 'VENUE_OWNER'),
-   ('priya.sharma@venues.com','$2b$12$own222', 'Priya',  'Sharma', 'priyas_owner',  '617-555-0202', 'VENUE_OWNER'),
-   ('carlos.m@venues.com',    '$2b$12$own333', 'Carlos', 'Mendez', 'carlosm_owner', '617-555-0203', 'VENUE_OWNER');
+   ('marcus.r@venues.com',    'password', 'Marcus', 'Rivera', 'marcusr_owner', '617-555-0201', 'VENUE_OWNER'),
+   ('priya.sharma@venues.com','password', 'Priya',  'Sharma', 'priyas_owner',  '617-555-0202', 'VENUE_OWNER'),
+   ('carlos.m@venues.com',    'password', 'Carlos', 'Mendez', 'carlosm_owner', '617-555-0203', 'VENUE_OWNER');
 
 
 -- Admins (role = 'ADMIN')
 INSERT INTO Users (email, pwdHash, firstName, lastName, username, role) VALUES
-   ('admin1@pindate.com', '$2b$12$adm111', 'Josh', 'Doe',    'joshd_admin', 'ADMIN'),
-   ('admin2@pindate.com', '$2b$12$adm222', 'Tom',  'Nguyen', 'tomn_admin',  'ADMIN');
+   ('admin1@pindate.com', 'password', 'Josh', 'Doe',    'joshd_admin', 'ADMIN'),
+   ('admin2@pindate.com', 'password', 'Tom',  'Nguyen', 'tomn_admin',  'ADMIN');
 
 
 -- Data Analysts (role = 'DATA_ANALYST')
 INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role) VALUES
-   ('analyst1@pindate.com', '$2b$12$da111', 'Nadia',  'Patel', 'nadiap_data', '617-555-0501', 'Boston',    'DATA_ANALYST'),
-   ('analyst2@pindate.com', '$2b$12$da222', 'Marcus', 'Owens', 'marcuso_da',  '617-555-0502', 'Cambridge', 'DATA_ANALYST');
+   ('analyst1@pindate.com', 'password', 'Nadia',  'Patel', 'nadiap_data', '617-555-0501', 'Boston',    'DATA_ANALYST'),
+   ('analyst2@pindate.com', 'password', 'Marcus', 'Owens', 'marcuso_da',  '617-555-0502', 'Cambridge', 'DATA_ANALYST');
 
 
 

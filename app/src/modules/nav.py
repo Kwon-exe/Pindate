@@ -41,6 +41,7 @@ def venue_owner_home_nav():
 def venue_owner_pages_nav():
     st.sidebar.page_link("pages/11_Manage_Venue.py", label="Manage My Venue", icon="✏️")
     st.sidebar.page_link("pages/12_Venue_Categorize.py", label="Categories & Vibes", icon="🏷️")
+    st.sidebar.page_link("pages/13_Flag_Reviews.py", label="Flag & Report Reviews", icon="🚩")
 
 
 # ---- Sidebar assembly -------------------------------------------------------

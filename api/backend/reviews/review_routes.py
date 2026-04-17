@@ -83,9 +83,14 @@ def delete_review(review_id):
 def flag_review(review_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
+        cursor.execute(
+            "UPDATE Reviews SET isFlagged = TRUE WHERE reviewId = %s",
+            (review_id,)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Review not found"}), 404
+        return jsonify({"message": "Review flagged"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

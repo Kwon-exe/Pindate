@@ -25,10 +25,20 @@ def get_all_tickets():
 def create_ticket():
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        reporter_id = data.get('reporterId')
+        reason = data.get('reason')
+        if not reporter_id or not reason:
+            return jsonify({"error": "'reporterId' and 'reason' are required"}), 400
+        cursor.execute(
+            """
+            INSERT INTO ReportTickets (reporterId, reviewId, reason, description)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (reporter_id, data.get('reviewId'), reason, data.get('description'))
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Ticket submitted", "reportId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

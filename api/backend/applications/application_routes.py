@@ -5,14 +5,27 @@ from mysql.connector import Error
 applications = Blueprint('applications', __name__)
 
 
-# List all applications (filterable by status) [Josh-3]
+# List all applications (filterable by status and ownerId) [Josh-3, Marcus-5]
 @applications.route('/', methods=['GET'])
 def get_all_applications():
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify({"message": "TODO"}), 200
+        status = request.args.get('status')
+        owner_id = request.args.get('ownerId', type=int)
+        cursor.execute(
+            """
+            SELECT a.applicationId, a.ownerId, u.username AS ownerUsername,
+                   a.name, a.description, a.address, a.phone,
+                   a.minPrice, a.maxPrice, a.status, a.createdAt
+            FROM VenueApplications a
+            LEFT JOIN Users u ON u.accountId = a.ownerId
+            WHERE (%s IS NULL OR a.status = %s)
+              AND (%s IS NULL OR a.ownerId = %s)
+            ORDER BY a.createdAt DESC
+            """,
+            (status, status, owner_id, owner_id)
+        )
+        return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -25,10 +38,29 @@ def get_all_applications():
 def create_application():
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        required = ['ownerId', 'name', 'address']
+        missing = [f for f in required if not data.get(f)]
+        if missing:
+            return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
+        cursor.execute(
+            """
+            INSERT INTO VenueApplications
+                (ownerId, name, description, address, phone, minPrice, maxPrice)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                data['ownerId'],
+                data['name'],
+                data.get('description'),
+                data['address'],
+                data.get('phone'),
+                data.get('minPrice'),
+                data.get('maxPrice'),
+            )
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 201
+        return jsonify({"message": "Application submitted", "applicationId": cursor.lastrowid}), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -41,9 +73,21 @@ def create_application():
 def get_application(app_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify({"message": "TODO"}), 200
+        cursor.execute(
+            """
+            SELECT a.applicationId, a.ownerId, u.username AS ownerUsername,
+                   a.name, a.description, a.address, a.phone,
+                   a.minPrice, a.maxPrice, a.status, a.createdAt
+            FROM VenueApplications a
+            LEFT JOIN Users u ON u.accountId = a.ownerId
+            WHERE a.applicationId = %s
+            """,
+            (app_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "Application not found"}), 404
+        return jsonify(row), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -56,10 +100,18 @@ def get_application(app_id):
 def update_application(app_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        status = data.get('status')
+        if status not in ('APPROVED', 'REJECTED', 'PENDING'):
+            return jsonify({"error": "status must be APPROVED, REJECTED, or PENDING"}), 400
+        cursor.execute(
+            "UPDATE VenueApplications SET status = %s WHERE applicationId = %s",
+            (status, app_id)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Application not found"}), 404
+        return jsonify({"message": f"Application {status.lower()}"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

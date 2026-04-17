@@ -25,3 +25,11 @@ with col3:
 with col4:
     if st.button("My Venue Reviews", use_container_width=True):
         st.switch_page("pages/14_My_Venue_Reviews.py")
+
+col5, col6 = st.columns(2)
+with col5:
+    if st.button("Submit Application", use_container_width=True):
+        st.switch_page("pages/15_New_Application.py")
+with col6:
+    if st.button("Posts & Events", use_container_width=True):
+        st.switch_page("pages/16_Venue_Posts.py")

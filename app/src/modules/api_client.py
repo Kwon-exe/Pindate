@@ -24,10 +24,24 @@ def _request(method, path: str, body: dict | None = None, params: dict | None = 
         url = f"{base_url}{path}"
         try:
             response = requests.request(method, url, json=body, params=params, timeout=8)
-            response.raise_for_status()
-            return response.json(), None
         except requests.RequestException as exc:
             last_error = str(exc)
+            continue
+
+        if response.status_code >= 400:
+            error_message = response.text.strip()
+            try:
+                payload = response.json()
+                if isinstance(payload, dict) and payload.get("error"):
+                    error_message = payload["error"]
+            except ValueError:
+                pass
+            return None, f"{response.status_code} {error_message}".strip()
+
+        try:
+            return response.json(), None
+        except ValueError:
+            return None, f"{response.status_code} Invalid JSON response from API"
     return None, last_error
 
 

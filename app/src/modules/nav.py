@@ -98,16 +98,16 @@ def SideBarLinks(show_home=False):
 
     if st.session_state["authenticated"]:
         role = st.session_state.get("role")
-        if role in ("date_planner", "date_seeker"):
+        if role in ("date_planner", "date_seeker", "CUSTOMER"):
             date_seeker_home_nav()
             date_seeker_pages_nav()
-        elif role == "venue_owner":
+        elif role in ("venue_owner", "VENUE_OWNER"):
             venue_owner_home_nav()
             venue_owner_pages_nav()
-        elif role == "data_analyst":
+        elif role in ("data_analyst", "DATA_ANALYST"):
             data_analyst_home_nav()
             data_analyst_pages_nav()
-        elif role == "admin":
+        elif role in ("admin", "ADMIN"):
             admin_home_nav()
             admin_pages_nav()
 

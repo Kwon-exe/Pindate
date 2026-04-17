@@ -1,8 +1,43 @@
 from flask import Blueprint, jsonify, request, current_app
+from hmac import compare_digest
 from backend.db_connection import get_db
 from mysql.connector import Error
 
 users = Blueprint('users', __name__)
+
+
+# Authenticate a user by username and stored hash [App login]
+@users.route('/login', methods=['POST'])
+def login_user():
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        data = request.get_json(silent=True) or {}
+        username = (data.get('username') or '').strip()
+        password_hash = (data.get('pwdHash') or data.get('password') or '').strip()
+
+        if not username or not password_hash:
+            return jsonify({"error": "'username' and 'pwdHash' are required"}), 400
+
+        cursor.execute(
+            """
+            SELECT accountId, email, firstName, lastName, username, phoneNum, city, role, pwdHash
+            FROM Users
+            WHERE username = %s
+            LIMIT 1
+            """,
+            (username,)
+        )
+        row = cursor.fetchone()
+        if not row or not compare_digest(str(row['pwdHash']), password_hash):
+            return jsonify({"error": "Invalid username or password"}), 401
+
+        row.pop('pwdHash', None)
+        return jsonify(row), 200
+    except Error as e:
+        current_app.logger.error(f'Error: {e}')
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
 
 
 # List users with info [Josh-2]

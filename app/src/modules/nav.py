@@ -35,12 +35,9 @@ def venue_owner_home_nav():
 
 
 def venue_owner_pages_nav():
-    st.sidebar.page_link("pages/11_Manage_Venue.py", label="Manage My Venue", icon="✏️")
-    st.sidebar.page_link("pages/12_Venue_Categorize.py", label="Categories & Vibes", icon="🏷️")
-    st.sidebar.page_link("pages/13_Flag_Reviews.py", label="Flag & Report Reviews", icon="🚩")
-    st.sidebar.page_link("pages/14_My_Venue_Reviews.py", label="My Venue Reviews", icon="💬")
+    st.sidebar.page_link("pages/11_Manage_Venue.py", label="My Venue", icon="✏️")
+    st.sidebar.page_link("pages/13_Flag_Reviews.py", label="Reviews & Reports", icon="💬")
     st.sidebar.page_link("pages/15_New_Application.py", label="Submit Application", icon="📋")
-    st.sidebar.page_link("pages/16_Venue_Posts.py", label="Posts & Events", icon="📣")
 
 
 # ---- Role: data analyst -----------------------------------------------------
@@ -50,12 +47,7 @@ def data_analyst_home_nav():
 
 
 def data_analyst_pages_nav():
-    st.sidebar.page_link("pages/21_User_Signups.py",    label="User Signups",    icon="📈")
-    st.sidebar.page_link("pages/22_Venue_Dashboard.py", label="Venue Dashboard", icon="🏆")
-    st.sidebar.page_link("pages/23_Coverage_Gaps.py",   label="Coverage Gaps",   icon="🗺️")
-    st.sidebar.page_link("pages/24_Review_Volume.py",   label="Review Volume",   icon="🔍")
-    st.sidebar.page_link("pages/25_User_Retention.py",  label="User Retention",  icon="👥")
-    st.sidebar.page_link("pages/26_Summary_Report.py",  label="Summary Report",  icon="📋")
+    st.sidebar.page_link("pages/21_User_Signups.py", label="Analytics Dashboard", icon="📊")
 
 
 # ---- Role: admin ------------------------------------------------------------
@@ -65,12 +57,8 @@ def admin_home_nav():
 
 
 def admin_pages_nav():
-    st.sidebar.page_link("pages/31_Manage_Tickets.py",          label="Manage Tickets",      icon="🎫")
-    st.sidebar.page_link("pages/32_Moderate_Users.py",          label="Moderate Users",      icon="👤")
-    st.sidebar.page_link("pages/33_Venue_Applications.py",      label="Venue Applications",  icon="📝")
-    st.sidebar.page_link("pages/34_Duplicate_Venues.py",        label="Duplicate Venues",    icon="🔁")
-    st.sidebar.page_link("pages/35_Admin_Categories_Vibes.py",  label="Categories & Vibes",  icon="🏷️")
-    st.sidebar.page_link("pages/36_Admin_Log.py",               label="Admin Log",           icon="📜")
+    st.sidebar.page_link("pages/31_Manage_Tickets.py", label="People & Tickets",  icon="🎫")
+    st.sidebar.page_link("pages/34_Duplicate_Venues.py", label="Platform Tools",  icon="🛠️")
 
 
 # ---- Sidebar assembly -------------------------------------------------------

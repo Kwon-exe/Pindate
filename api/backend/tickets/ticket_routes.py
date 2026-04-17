@@ -5,14 +5,26 @@ from mysql.connector import Error
 tickets = Blueprint('tickets', __name__)
 
 
-# List all open report tickets [Josh-1]
+# List all report tickets, filterable by status [Josh-1]
 @tickets.route('/', methods=['GET'])
 def get_all_tickets():
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify({"message": "TODO"}), 200
+        status = request.args.get('status')
+        cursor.execute(
+            """
+            SELECT rt.reportId, rt.reporterId,
+                   u.username AS reporterUsername,
+                   rt.reviewId, rt.reason, rt.description,
+                   rt.status, rt.createdAt
+            FROM ReportTickets rt
+            LEFT JOIN Users u ON u.accountId = rt.reporterId
+            WHERE (%s IS NULL OR rt.status = %s)
+            ORDER BY rt.createdAt DESC
+            """,
+            (status, status)
+        )
+        return jsonify(cursor.fetchall()), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -51,9 +63,23 @@ def create_ticket():
 def get_ticket(ticket_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        # TODO: complete query
-        cursor.execute("SELECT 1")
-        return jsonify({"message": "TODO"}), 200
+        cursor.execute(
+            """
+            SELECT rt.reportId, rt.reporterId,
+                   u.username AS reporterUsername,
+                   rt.reviewId, r.comment AS reviewComment,
+                   rt.reason, rt.description, rt.status, rt.createdAt
+            FROM ReportTickets rt
+            LEFT JOIN Users u   ON u.accountId  = rt.reporterId
+            LEFT JOIN Reviews r ON r.reviewId   = rt.reviewId
+            WHERE rt.reportId = %s
+            """,
+            (ticket_id,)
+        )
+        row = cursor.fetchone()
+        if not row:
+            return jsonify({"error": "Ticket not found"}), 404
+        return jsonify(row), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500
@@ -66,10 +92,19 @@ def get_ticket(ticket_id):
 def update_ticket(ticket_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json()
-        # TODO: complete query
+        data = request.get_json(silent=True) or {}
+        status = data.get('status')
+        valid = ('PENDING', 'UNDER REVIEW', 'RESOLVED', 'DISMISSED')
+        if status not in valid:
+            return jsonify({"error": f"status must be one of {valid}"}), 400
+        cursor.execute(
+            "UPDATE ReportTickets SET status = %s WHERE reportId = %s",
+            (status, ticket_id)
+        )
         get_db().commit()
-        return jsonify({"message": "TODO"}), 200
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Ticket not found"}), 404
+        return jsonify({"message": f"Ticket updated to {status}"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

@@ -5,6 +5,29 @@ from mysql.connector import Error
 venues = Blueprint('venues', __name__)
 
 
+# Detect duplicate venue names [Josh-4]
+@venues.route('/duplicates', methods=['GET'])
+def get_duplicate_venues():
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        cursor.execute(
+            """
+            SELECT v.venueId, v.name, v.city, v.address, v.rating, v.ownerId
+            FROM Venues v
+            WHERE v.name IN (
+                SELECT name FROM Venues GROUP BY name HAVING COUNT(*) > 1
+            )
+            ORDER BY v.name, v.city
+            """
+        )
+        return jsonify(cursor.fetchall()), 200
+    except Error as e:
+        current_app.logger.error(f'Error: {e}')
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+
 # List all venues by name & location [Maya-1, Josh-4]
 @venues.route('/', methods=['GET'])
 def get_all_venues():
@@ -185,6 +208,23 @@ def update_venue(venue_id):
         if cursor.rowcount == 0:
             return jsonify({"error": "Venue not found"}), 404
         return jsonify({"message": "Venue updated"}), 200
+    except Error as e:
+        current_app.logger.error(f'Error: {e}')
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+
+# Delete a venue (admin use — remove duplicates) [Josh-4]
+@venues.route('/<int:venue_id>', methods=['DELETE'])
+def delete_venue(venue_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        cursor.execute("DELETE FROM Venues WHERE venueId = %s", (venue_id,))
+        get_db().commit()
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Venue not found"}), 404
+        return jsonify({"message": "Venue deleted"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

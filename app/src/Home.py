@@ -34,7 +34,7 @@ if st.button("Login as Marcus Rivera - Venue Owner", type='primary', use_contain
     st.session_state['first_name'] = 'Marcus'
     st.session_state['user_id'] = 4
     logger.info("Logging in as Venue Owner: Marcus Rivera")
-    st.switch_page('pages/40_Date_Seeker_Home.py')
+    st.switch_page('pages/10_Marcus_Home.py')
 
 # Persona 3: Joey Maple (Data Analyst)
 if st.button("Login as Joey Maple - Data Analyst", type='primary', use_container_width=True):
@@ -43,7 +43,7 @@ if st.button("Login as Joey Maple - Data Analyst", type='primary', use_container
     st.session_state['first_name'] = 'Joey'
     st.session_state['user_id'] = 9
     logger.info("Logging in as Data Analyst: Joey Maple")
-    st.switch_page('pages/40_Date_Seeker_Home.py')
+    st.switch_page('pages/20_Joey_Home.py')
 
 # Persona 4: Josh Doe (Platform Admin)
 if st.button("Login as Josh Doe - Platform Admin", type='primary', use_container_width=True):
@@ -51,5 +51,5 @@ if st.button("Login as Josh Doe - Platform Admin", type='primary', use_container
     st.session_state['role'] = 'admin'
     st.session_state['first_name'] = 'Josh'
     st.session_state['user_id'] = 7
-    logger.info("Logging in as Admin: Josh Doe")
-    st.switch_page('pages/40_Date_Seeker_Home.py')
+    logger.info("Logging in as Platform Admin: Josh Doe")
+    st.switch_page('pages/30_Josh_Home.py')

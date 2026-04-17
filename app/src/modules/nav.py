@@ -47,6 +47,36 @@ def venue_owner_pages_nav():
     st.sidebar.page_link("pages/16_Venue_Posts.py", label="Posts & Events", icon="📣")
 
 
+# ---- Role: data analyst -----------------------------------------------------
+
+def data_analyst_home_nav():
+    st.sidebar.page_link("pages/20_Joey_Home.py", label="Analyst Home", icon="📊")
+
+
+def data_analyst_pages_nav():
+    st.sidebar.page_link("pages/21_User_Signups.py",    label="User Signups",    icon="📈")
+    st.sidebar.page_link("pages/22_Venue_Dashboard.py", label="Venue Dashboard", icon="🏆")
+    st.sidebar.page_link("pages/23_Coverage_Gaps.py",   label="Coverage Gaps",   icon="🗺️")
+    st.sidebar.page_link("pages/24_Review_Volume.py",   label="Review Volume",   icon="🔍")
+    st.sidebar.page_link("pages/25_User_Retention.py",  label="User Retention",  icon="👥")
+    st.sidebar.page_link("pages/26_Summary_Report.py",  label="Summary Report",  icon="📋")
+
+
+# ---- Role: admin ------------------------------------------------------------
+
+def admin_home_nav():
+    st.sidebar.page_link("pages/30_Josh_Home.py", label="Admin Home", icon="🛡️")
+
+
+def admin_pages_nav():
+    st.sidebar.page_link("pages/31_Manage_Tickets.py",          label="Manage Tickets",      icon="🎫")
+    st.sidebar.page_link("pages/32_Moderate_Users.py",          label="Moderate Users",      icon="👤")
+    st.sidebar.page_link("pages/33_Venue_Applications.py",      label="Venue Applications",  icon="📝")
+    st.sidebar.page_link("pages/34_Duplicate_Venues.py",        label="Duplicate Venues",    icon="🔁")
+    st.sidebar.page_link("pages/35_Admin_Categories_Vibes.py",  label="Categories & Vibes",  icon="🏷️")
+    st.sidebar.page_link("pages/36_Admin_Log.py",               label="Admin Log",           icon="📜")
+
+
 # ---- Sidebar assembly -------------------------------------------------------
 
 def SideBarLinks(show_home=False):
@@ -74,6 +104,12 @@ def SideBarLinks(show_home=False):
         elif role == "venue_owner":
             venue_owner_home_nav()
             venue_owner_pages_nav()
+        elif role == "data_analyst":
+            data_analyst_home_nav()
+            data_analyst_pages_nav()
+        elif role == "admin":
+            admin_home_nav()
+            admin_pages_nav()
 
     # About link appears at the bottom for all roles
     about_page_nav()

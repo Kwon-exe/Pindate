@@ -24,12 +24,8 @@ def date_seeker_home_nav():
 
 
 def date_seeker_pages_nav():
-    st.sidebar.page_link("pages/41_Discover_Venues.py", label="Discover Venues", icon="🔍")
-    st.sidebar.page_link("pages/42_Lists_and_Saves.py", label="Saved Venues", icon="🔖")
-    st.sidebar.page_link("pages/43_My_Reviews.py", label="My Reviews", icon="⭐")
-    st.sidebar.page_link("pages/44_Venue_Reviews.py", label="Browse Reviews", icon="💬")
-    st.sidebar.page_link("pages/45_Visited_Places.py", label="Visited Places", icon="📍")
-    st.sidebar.page_link("pages/46_Similar_Venues.py", label="Similar Venues", icon="✨")
+    st.sidebar.page_link("pages/41_Discover_Venues.py", label="Discover & My Lists", icon="🔍")
+    st.sidebar.page_link("pages/43_My_Reviews.py", label="Reviews", icon="⭐")
 
 
 # ---- Role: venue owner ------------------------------------------------------

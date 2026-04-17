@@ -53,6 +53,8 @@ def get_all_venues():
 def search_venues():
     cursor = get_db().cursor(dictionary=True)
     try:
+        q = request.args.get('q', type=str)
+        q = f"%{q.strip()}%" if q and q.strip() else None
         city = request.args.get('city', type=str)
         city = city.strip() if city else None
         if city == '':
@@ -66,19 +68,26 @@ def search_venues():
         cursor.execute(
             """
             SELECT DISTINCT v.venueId, v.name, v.description, v.city, v.address,
-                            v.rating, v.minPrice, v.maxPrice
+                            v.rating, v.minPrice, v.maxPrice,
+                            GROUP_CONCAT(DISTINCT c.name  ORDER BY c.name  SEPARATOR ', ') AS categories,
+                            GROUP_CONCAT(DISTINCT b.name  ORDER BY b.name  SEPARATOR ', ') AS vibes
             FROM Venues v
             LEFT JOIN VenueCategory vc ON vc.venueId = v.venueId
-            LEFT JOIN VenueVibe vv ON vv.venueId = v.venueId
-                        WHERE (%s IS NULL OR LOWER(TRIM(v.city)) = LOWER(TRIM(%s)))
+            LEFT JOIN Category c       ON c.categoryId = vc.categoryId
+            LEFT JOIN VenueVibe vv     ON vv.venueId = v.venueId
+            LEFT JOIN Vibe b           ON b.vibeId = vv.vibeId
+            WHERE (%s IS NULL OR v.name LIKE %s OR v.description LIKE %s)
+              AND (%s IS NULL OR LOWER(TRIM(v.city)) = LOWER(TRIM(%s)))
               AND (%s IS NULL OR vc.categoryId = %s)
               AND (%s IS NULL OR vv.vibeId = %s)
               AND (%s IS NULL OR v.minPrice >= %s)
               AND (%s IS NULL OR v.maxPrice <= %s)
               AND (%s IS NULL OR v.rating >= %s)
+            GROUP BY v.venueId
             ORDER BY v.rating DESC, v.name
             """,
             (
+                q, q, q,
                 city, city,
                 category_id, category_id,
                 vibe_id, vibe_id,

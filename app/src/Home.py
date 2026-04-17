@@ -19,25 +19,25 @@ if st.session_state['authenticated']:
 
 st.title('PinDate')
 st.write('### Find, Rate, and Share Your Next Date Spot')
-st.write('##### Log in with your username and password hash:')
+st.write('##### Log in with your username and password:')
 
 with st.form('login_form'):
     username = st.text_input('Username', placeholder='mayac')
-    pwd_hash = st.text_input('Password hash', type='password', placeholder='password')
+    pwd_hash = st.text_input('Password', type='password', placeholder='password')
     submitted = st.form_submit_button('Log In', type='primary', use_container_width=True)
 
 if submitted:
     if not username.strip() or not pwd_hash.strip():
-        st.warning('Enter both username and password hash.')
+        st.warning('Enter both username and password.')
     else:
         user, err = api_post('/users/login', {'username': username.strip(), 'pwdHash': pwd_hash.strip()})
         if err:
             if '401' in err:
-                st.error('Invalid username or password hash.')
+                st.error('Invalid username or password.')
             else:
                 show_api_error(err)
         elif not user:
-            st.error('Invalid username or password hash.')
+            st.error('Invalid username or password.')
         else:
             st.session_state['authenticated'] = True
             st.session_state['role'] = user.get('role')

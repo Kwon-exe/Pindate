@@ -29,7 +29,7 @@ def login_user():
         )
         row = cursor.fetchone()
         if not row or not compare_digest(str(row['pwdHash']), password_hash):
-            return jsonify({"error": "Invalid username or password hash"}), 401
+            return jsonify({"error": "Invalid username or password"}), 401
 
         row.pop('pwdHash', None)
         return jsonify(row), 200

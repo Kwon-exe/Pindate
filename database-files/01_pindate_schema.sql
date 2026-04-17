@@ -240,27 +240,38 @@ INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city
 INSERT INTO Venues (ownerId, name, description, address, city, phoneNum, rating, minPrice, maxPrice) VALUES
    (4, 'Rooftop Lantern',    'A rooftop bar with stunning Boston skyline views.',        '123 High St', 'Boston',    '617-555-0301', 4.50, 20.00, 80.00),
    (5, 'The Cozy Corner',    'A warm cafe perfect for intimate dates and great coffee.', '456 Elm Ave',  'Cambridge', '617-555-0302', 4.20,  5.00, 30.00),
-   (6, 'Neon Arcade Lounge', 'Retro arcade games paired with craft cocktails.',          '789 Main St', 'Somerville','617-555-0303', 4.70, 10.00, 50.00);
+   (6, 'Neon Arcade Lounge', 'Retro arcade games paired with craft cocktails.',          '789 Main St', 'Somerville','617-555-0303', 4.70, 10.00, 50.00),
+   (4, 'Harbor House Rooftop', 'Waterfront dining with skyline views and date-night menus.', '18 Seaport Blvd', 'Boston', '617-555-0304', 4.80, 25.00, 90.00),
+   (5, 'Velvet Hour',          'A moody lounge with craft drinks, live music, and plush seating.', '27 Brattle St', 'Cambridge', '617-555-0305', 4.60, 15.00, 75.00),
+   (6, 'Greenline Garden',     'A laid-back park cafe for coffee walks, picnics, and sunset hangs.', '91 Somerville Ave', 'Somerville', '617-555-0306', 4.30,  8.00, 35.00);
 
 
 INSERT INTO VenueCategory (venueId, categoryId) VALUES
-   (1, 2), (1, 10), (2, 3), (3, 9), (3, 4);
+   (1, 2), (1, 10), (2, 3), (3, 9), (3, 4),
+   (4, 1), (4, 10), (5, 2), (5, 4), (6, 3), (6, 6);
 
 
 INSERT INTO VenueVibe (venueId, vibeId) VALUES
-   (1, 1), (1, 3), (2, 4), (2, 10), (3, 5), (3, 7);
+   (1, 1), (1, 3), (2, 4), (2, 10), (3, 5), (3, 7),
+   (4, 1), (4, 3), (5, 9), (5, 10), (6, 2), (6, 6);
 
 
 INSERT INTO Reviews (userId, venueId, comment, rating, isFlagged) VALUES
    (1, 1, 'Absolutely stunning views, perfect for a date night!',        4.80, FALSE),
    (2, 2, 'Such a cozy spot. The lattes are amazing.',                   4.20, FALSE),
-   (3, 3, 'So much fun — the retro games made the night unforgettable.', 4.70, FALSE);
+   (3, 3, 'So much fun — the retro games made the night unforgettable.', 4.70, FALSE),
+   (1, 4, 'The waterfront view and menu make this an easy yes for a special night out.', 4.60, FALSE),
+   (2, 5, 'A polished lounge with great cocktails and just enough energy for a first date.', 4.40, FALSE),
+   (3, 6, 'Relaxed, walkable, and perfect for a coffee date that can turn into a picnic.', 4.10, FALSE);
 
 
 INSERT INTO Posts (ownerId, venueId, content) VALUES
    (4, 1, 'Join us this Friday for live jazz under the stars! Reserve your table now.'),
    (5, 2, 'New seasonal menu is here — try our maple oat latte while it lasts!'),
-   (6, 3, 'Double tokens every Tuesday night. Bring your date for double the fun!');
+   (6, 3, 'Double tokens every Tuesday night. Bring your date for double the fun!'),
+   (4, 4, 'Sunset seating is now open on the rooftop patio.'),
+   (5, 5, 'Live acoustic sets every Thursday at Velvet Hour.'),
+   (6, 6, 'Morning coffee and weekend picnic baskets are back.');
 
 
 INSERT INTO Lists (userId, name) VALUES
@@ -270,11 +281,11 @@ INSERT INTO Lists (userId, name) VALUES
 
 
 INSERT INTO ListVenue (listId, venueId) VALUES
-   (1, 1), (1, 2), (2, 3), (3, 1);
+   (1, 1), (1, 2), (1, 4), (2, 3), (2, 5), (3, 1), (3, 6);
 
 
 INSERT INTO SavedVenues (userId, venueId) VALUES
-   (1, 3), (2, 1), (3, 2);
+   (1, 3), (1, 4), (2, 1), (2, 5), (3, 2), (3, 6);
 
 
 INSERT INTO VenueApplications (ownerId, name, description, address, phone, minPrice, maxPrice, status) VALUES

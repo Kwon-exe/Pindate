@@ -30,7 +30,10 @@ def get_all_venues():
 def search_venues():
     cursor = get_db().cursor(dictionary=True)
     try:
-        city = request.args.get('city')
+        city = request.args.get('city', type=str)
+        city = city.strip() if city else None
+        if city == '':
+            city = None
         category_id = request.args.get('category_id', type=int)
         vibe_id = request.args.get('vibe_id', type=int)
         min_price = request.args.get('min_price', type=float)
@@ -44,7 +47,7 @@ def search_venues():
             FROM Venues v
             LEFT JOIN VenueCategory vc ON vc.venueId = v.venueId
             LEFT JOIN VenueVibe vv ON vv.venueId = v.venueId
-            WHERE (%s IS NULL OR v.city = %s)
+                        WHERE (%s IS NULL OR LOWER(TRIM(v.city)) = LOWER(TRIM(%s)))
               AND (%s IS NULL OR vc.categoryId = %s)
               AND (%s IS NULL OR vv.vibeId = %s)
               AND (%s IS NULL OR v.minPrice >= %s)

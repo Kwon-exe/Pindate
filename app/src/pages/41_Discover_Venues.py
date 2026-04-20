@@ -141,7 +141,7 @@ with tab_discover:
         if chosen_vibe in vibe_map:
             params["vibe_id"] = vibe_map[chosen_vibe]
     if price_range != "Any":
-        params["max_price"] = {"$": 15, "$$": 35, "$$$": 75, "$$$$": 999}[price_range]
+        params["max_price"] = {"$": 25, "$$": 50, "$$$": 75, "$$$$": 999}[price_range]
 
     st.divider()
 

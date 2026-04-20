@@ -34,7 +34,7 @@ st.write('### Find, Rate, and Share Your Next Date Spot')
 st.write('##### Log in with your username and password:')
 
 with st.form('login_form'):
-    username = st.text_input('Username', placeholder='mayac')
+    username = st.text_input('Username', placeholder='username')
     pwd_hash = st.text_input('Password', type='password', placeholder='password')
     submitted = st.form_submit_button('Log In', type='primary', use_container_width=True)
 

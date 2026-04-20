@@ -6,7 +6,7 @@
 import streamlit as st
 
 from modules.nav import SideBarLinks
-from modules.api_client import api_get, api_post, api_delete, show_api_error
+from modules.api_client import api_get, api_post, api_put, api_delete, show_api_error
 
 st.set_page_config(layout="wide")
 SideBarLinks(show_home=False)
@@ -328,17 +328,35 @@ with tab_lists:
                                     st.error(msg[1])
 
                     with st.expander("📝 My Notes"):
-                        note_key = f"note_{vid}"
-                        note_text = st.text_area(
+                        note_input_key = f"note_input_{vid}"
+                        if note_input_key not in st.session_state:
+                            st.session_state[note_input_key] = v.get("notes") or ""
+
+                        st.text_area(
                             "Note",
-                            value=st.session_state.get(note_key, ""),
-                            key=f"note_input_{vid}",
+                            key=note_input_key,
                             placeholder="e.g. Great for anniversaries, ask for the corner table",
                             label_visibility="collapsed",
                         )
                         if st.button("Save Note", key=f"save_note_{vid}"):
-                            st.session_state[note_key] = note_text
-                            st.success("Note saved!")
+                            note_text = (st.session_state.get(note_input_key) or "").strip()
+                            _, n_err = api_put(
+                                f"/users/{user_id}/saved/notes",
+                                {"venueId": vid, "notes": note_text or None},
+                            )
+                            note_msg_key = f"note_msg_{vid}"
+                            if n_err:
+                                st.session_state.list_msgs[note_msg_key] = ("error", n_err)
+                            else:
+                                st.session_state.list_msgs[note_msg_key] = ("success", "Note saved!")
+                            st.rerun()
+
+                        note_msg = st.session_state.list_msgs.get(f"note_msg_{vid}")
+                        if note_msg:
+                            if note_msg[0] == "success":
+                                st.success(note_msg[1])
+                            else:
+                                st.error(note_msg[1])
 
     # ── Visited ────────────────────────────────────────────────────────────────
     with sub_visited:

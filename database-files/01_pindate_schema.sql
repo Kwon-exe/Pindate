@@ -149,6 +149,7 @@ CREATE TABLE SavedVenues (
    userId      INT             NOT NULL,
    venueId     INT             NOT NULL,
    savedAt     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   notes       VARCHAR(255)    NOT NULL DEFAULT '',
    PRIMARY KEY (userId, venueId),
    CONSTRAINT fk_savedvenues_user  FOREIGN KEY (userId)  REFERENCES Users(accountId),
    CONSTRAINT fk_savedvenues_venue FOREIGN KEY (venueId) REFERENCES Venues(venueId)

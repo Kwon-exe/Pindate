@@ -300,7 +300,7 @@ def get_saved_venues(user_id):
     try:
         cursor.execute(
             """
-            SELECT v.venueId, v.name, v.city, v.address, v.rating, sv.savedAt
+            SELECT v.venueId, v.name, v.city, v.address, v.rating, sv.savedAt, sv.notes
             FROM SavedVenues sv
             JOIN Venues v ON v.venueId = sv.venueId
             WHERE sv.userId = %s
@@ -357,6 +357,39 @@ def unsave_venue(user_id):
         if cursor.rowcount == 0:
             return jsonify({"error": "Saved venue not found"}), 404
         return jsonify({"message": "Venue removed from saved list"}), 200
+    except Error as e:
+        current_app.logger.error(f'Error: {e}')
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+
+
+# Update a note for a saved venue [Maya-5]
+@users.route('/<int:user_id>/saved/notes', methods=['PUT'])
+def update_saved_venue_note(user_id):
+    cursor = get_db().cursor(dictionary=True)
+    try:
+        data = request.get_json(silent=True) or {}
+        venue_id = data.get('venueId')
+        if not venue_id:
+            return jsonify({"error": "'venueId' is required"}), 400
+
+        notes = data.get('notes')
+        if notes is not None:
+            notes = str(notes).strip() or None
+
+        cursor.execute(
+            """
+            UPDATE SavedVenues
+            SET notes = %s
+            WHERE userId = %s AND venueId = %s
+            """,
+            (notes, user_id, venue_id)
+        )
+        get_db().commit()
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Saved venue not found"}), 404
+        return jsonify({"message": "Saved venue note updated"}), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

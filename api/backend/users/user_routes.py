@@ -251,7 +251,7 @@ def get_user_lists(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         cursor.execute(
-            "SELECT listId, userId, name FROM Lists WHERE userId = %s ORDER BY listId",
+            "SELECT listId, userId, name, description FROM Lists WHERE userId = %s ORDER BY listId",
             (user_id,)
         )
         return jsonify(cursor.fetchall()), 200
@@ -268,16 +268,24 @@ def create_user_list(user_id):
     cursor = get_db().cursor(dictionary=True)
     try:
         data = request.get_json(silent=True) or {}
-        name = data.get('name')
+        name = (data.get('name') or '').strip()
+        description = data.get('description')
+        if description is not None:
+            description = str(description).strip() or None
         if not name:
             return jsonify({"error": "'name' is required"}), 400
 
         cursor.execute(
-            "INSERT INTO Lists (userId, name) VALUES (%s, %s)",
-            (user_id, name)
+            "INSERT INTO Lists (userId, name, description) VALUES (%s, %s, %s)",
+            (user_id, name, description)
         )
         get_db().commit()
-        return jsonify({"message": "List created", "listId": cursor.lastrowid}), 201
+        return jsonify({
+            "listId": cursor.lastrowid,
+            "userId": user_id,
+            "name": name,
+            "description": description,
+        }), 201
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

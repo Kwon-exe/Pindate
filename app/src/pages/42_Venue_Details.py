@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
 from modules.nav import SideBarLinks
-from modules.api_client import api_get, show_api_error
+from modules.api_client import api_get, api_post, show_api_error
 
 st.set_page_config(layout="wide")
 SideBarLinks(show_home=False)
@@ -119,6 +119,68 @@ with st.container(border=True):
             tags += [f"✨ {b.strip()}" for b in venue["vibes"].split(",")]
         if tags:
             st.markdown(" &nbsp; ".join([f"`{t}`" for t in tags]), unsafe_allow_html=True)
+
+
+# ── Action buttons (Save to list / Mark Visited) ──────────────────────────────
+user_id = st.session_state.get("user_id")
+action_msg = st.session_state.pop("detail_action_msg", None)
+
+user_lists, _ = api_get(f"/users/{user_id}/lists")
+# Backend uses a reserved list named 'Visited' to back the built-in Visited bucket.
+user_lists = [l for l in (user_lists or []) if l.get("name") != "Visited"]
+
+b_save, b_visit, _ = st.columns([1, 2, 3])
+with b_save:
+    with st.popover("🔖 Save to list", use_container_width=True):
+        if st.button("🔖 Saved (default)", key="detail_savedflat", use_container_width=True):
+            _, err = api_post(f"/users/{user_id}/saved", {"venueId": venue_id})
+            if err:
+                if "Duplicate" in err or "1062" in err:
+                    st.session_state["detail_action_msg"] = ("info", "Already in Saved!")
+                else:
+                    st.session_state["detail_action_msg"] = ("error", err)
+            else:
+                st.session_state["detail_action_msg"] = ("success", "Saved!")
+            st.rerun()
+        if user_lists:
+            st.divider()
+            for lst in user_lists:
+                if st.button(
+                    f"📁 {lst['name']}",
+                    key=f"detail_addto_{lst['listId']}",
+                    use_container_width=True,
+                ):
+                    _, err = api_post(f"/lists/{lst['listId']}/venues", {"venueId": venue_id})
+                    if err:
+                        if "409" in err or "Duplicate" in err or "1062" in err or "already" in err.lower():
+                            st.session_state["detail_action_msg"] = ("info", f"Already in {lst['name']}!")
+                        else:
+                            st.session_state["detail_action_msg"] = ("error", err)
+                    else:
+                        st.session_state["detail_action_msg"] = ("success", f"Added to {lst['name']}!")
+                    st.rerun()
+        else:
+            st.caption("No custom lists yet. Create one from **My Lists**.")
+with b_visit:
+    if st.button("📍 Mark as Visited", key="detail_visit", use_container_width=True):
+        _, err = api_post(f"/users/{user_id}/visited", {"venueId": venue_id})
+        if err:
+            if "Duplicate" in err or "1062" in err:
+                st.session_state["detail_action_msg"] = ("info", "Already marked as visited!")
+            else:
+                st.session_state["detail_action_msg"] = ("error", err)
+        else:
+            st.session_state["detail_action_msg"] = ("success", "Marked as visited!")
+        st.rerun()
+
+if action_msg:
+    kind, text = action_msg
+    if kind == "success":
+        st.success(text)
+    elif kind == "info":
+        st.info(text)
+    else:
+        st.error(text)
 
 
 # ── Description ───────────────────────────────────────────────────────────────

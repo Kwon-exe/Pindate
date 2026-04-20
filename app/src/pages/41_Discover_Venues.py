@@ -20,6 +20,86 @@ if "list_msgs" not in st.session_state:
 if "active_vibes" not in st.session_state:
     st.session_state.active_vibes = set()
 
+# Fetch the user's custom lists once per render — needed by every venue card's
+# "Save to list" popover as well as the My Lists tab.
+# The backend auto-creates a reserved Lists row named 'Visited' to back the
+# Visited bucket — hide it so it doesn't show up as a duplicate custom tab.
+RESERVED_LIST_NAMES = {"Visited"}
+user_lists, _ = api_get(f"/users/{user_id}/lists")
+user_lists = [l for l in (user_lists or []) if l.get("name") not in RESERVED_LIST_NAMES]
+
+
+@st.dialog("Create New List")
+def create_list_dialog():
+    with st.form("new_list_form", clear_on_submit=True):
+        title = st.text_input("Title *", max_chars=255)
+        description = st.text_area("Description (optional)")
+        c1, c2 = st.columns(2)
+        with c1:
+            submitted = st.form_submit_button("Save", type="primary", use_container_width=True)
+        with c2:
+            cancelled = st.form_submit_button("Cancel", use_container_width=True)
+    if submitted:
+        if not title.strip():
+            st.error("Title is required.")
+            return
+        if title.strip() in RESERVED_LIST_NAMES:
+            st.error(f"'{title.strip()}' is a reserved name. Pick another.")
+            return
+        _, err = api_post(f"/users/{user_id}/lists", {
+            "name": title.strip(),
+            "description": description.strip() or None,
+        })
+        if err:
+            show_api_error(err)
+        else:
+            st.rerun()
+    if cancelled:
+        st.rerun()
+
+
+def save_to_list_popover(vid, key_prefix):
+    """Save-to-list dropdown: 'Saved' default bucket + every custom list."""
+    save_key = f"{key_prefix}_{vid}"
+    with st.popover("🔖 Save to list", use_container_width=True):
+        if st.button("🔖 Saved (default)", key=f"{save_key}_savedflat", use_container_width=True):
+            _, err = api_post(f"/users/{user_id}/saved", {"venueId": vid})
+            if err:
+                if "Duplicate" in err or "1062" in err:
+                    st.session_state.save_msgs[save_key] = ("info", "Already in Saved!")
+                else:
+                    st.session_state.save_msgs[save_key] = ("error", err)
+            else:
+                st.session_state.save_msgs[save_key] = ("success", "Saved!")
+            st.rerun()
+        if user_lists:
+            st.divider()
+            for lst in user_lists:
+                if st.button(
+                    f"📁 {lst['name']}",
+                    key=f"{save_key}_addto_{lst['listId']}",
+                    use_container_width=True,
+                ):
+                    _, err = api_post(f"/lists/{lst['listId']}/venues", {"venueId": vid})
+                    if err:
+                        if "409" in err or "Duplicate" in err or "1062" in err or "already" in err.lower():
+                            st.session_state.save_msgs[save_key] = ("info", f"Already in {lst['name']}!")
+                        else:
+                            st.session_state.save_msgs[save_key] = ("error", err)
+                    else:
+                        st.session_state.save_msgs[save_key] = ("success", f"Added to {lst['name']}!")
+                    st.rerun()
+        else:
+            st.caption("No custom lists yet. Create one from **My Lists**.")
+    msg = st.session_state.save_msgs.get(save_key)
+    if msg:
+        if msg[0] == "success":
+            st.success(msg[1])
+        elif msg[0] == "info":
+            st.info(msg[1])
+        else:
+            st.error(msg[1])
+
 st.title("Venues")
 
 # Left-align the text inside venue-name buttons (wrapped in st.container(key="venue-name-btn-*"))
@@ -35,7 +115,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-tab_discover, tab_lists = st.tabs(["🔍 Discover", "🔖 My Lists"])
+# Load Saved/Visited once so both the My Lists and Similar Venues tabs can use them.
+saved, saved_err = api_get(f"/users/{user_id}/saved")
+visited, visited_err = api_get(f"/users/{user_id}/visited")
+saved = saved or []
+visited = visited or []
+
+tab_discover, tab_lists, tab_similar = st.tabs(["🔍 Discover", "🔖 My Lists", "✨ Similar Venues"])
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -89,25 +175,7 @@ def venue_card(v, key_prefix):
                     st.markdown(" &nbsp; ".join([f"`{t}`" for t in tags]), unsafe_allow_html=True)
         with right:
             st.markdown("<br>", unsafe_allow_html=True)
-            save_key = f"{key_prefix}_{vid}"
-            if st.button("🔖 Save", key=save_key, use_container_width=True, type="primary"):
-                _, save_err = api_post(f"/users/{user_id}/saved", {"venueId": vid})
-                if save_err:
-                    if "Duplicate" in save_err or "1062" in save_err:
-                        st.session_state.save_msgs[save_key] = ("info", "Already saved!")
-                    else:
-                        st.session_state.save_msgs[save_key] = ("error", save_err)
-                else:
-                    st.session_state.save_msgs[save_key] = ("success", "Saved!")
-                st.rerun()
-            msg = st.session_state.save_msgs.get(save_key)
-            if msg:
-                if msg[0] == "success":
-                    st.success(msg[1])
-                elif msg[0] == "info":
-                    st.info(msg[1])
-                else:
-                    st.error(msg[1])
+            save_to_list_popover(vid, key_prefix)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -189,17 +257,20 @@ with tab_discover:
 # TAB 2 — MY LISTS
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_lists:
-    saved, saved_err = api_get(f"/users/{user_id}/saved")
-    visited, visited_err = api_get(f"/users/{user_id}/visited")
+    cnl_col, _ = st.columns([1, 5])
+    with cnl_col:
+        if st.button("➕ Create New List", type="primary", use_container_width=True):
+            create_list_dialog()
 
-    saved = saved or []
-    visited = visited or []
-
-    sub_saved, sub_visited, sub_similar = st.tabs([
+    tab_labels = [
         f"🔖 Saved ({len(saved)})",
         f"📍 Visited ({len(visited)})",
-        "✨ Similar Venues",
-    ])
+    ] + [f"📁 {lst['name']}" for lst in user_lists]
+
+    sub_tabs      = st.tabs(tab_labels)
+    sub_saved     = sub_tabs[0]
+    sub_visited   = sub_tabs[1]
+    sub_customs   = sub_tabs[2:]
 
     # ── Saved ──────────────────────────────────────────────────────────────────
     with sub_saved:
@@ -223,7 +294,10 @@ with tab_lists:
                                 unsafe_allow_html=True,
                             )
                         with info_col:
-                            st.markdown(f"### {v['name']}")
+                            with st.container(key=f"venue-name-btn-saved-{vid}"):
+                                if st.button(v["name"], key=f"saved_open_{vid}"):
+                                    st.session_state["selected_venue_id"] = vid
+                                    st.switch_page("pages/42_Venue_Details.py")
                             st.markdown(f"{stars_str(rating)} **{round(rating, 1)}**")
                             st.caption(f"📍 {v.get('city', '')}  {v.get('address', '')}")
                             saved_at = str(v.get("savedAt", ""))[:10]
@@ -286,7 +360,10 @@ with tab_lists:
                             unsafe_allow_html=True,
                         )
                     with info_col:
-                        st.markdown(f"### {v['name']}")
+                        with st.container(key=f"venue-name-btn-visited-{vid}"):
+                            if st.button(v["name"], key=f"visited_open_{vid}"):
+                                st.session_state["selected_venue_id"] = vid
+                                st.switch_page("pages/42_Venue_Details.py")
                         st.markdown(f"{stars_str(rating)} **{round(rating, 1)}**")
                         st.caption(f"📍 {v.get('city', '')}  {v.get('address', '')}")
                     with action_col:
@@ -305,41 +382,118 @@ with tab_lists:
                             else:
                                 st.error(msg[1])
 
-    # ── Similar Venues ─────────────────────────────────────────────────────────
-    with sub_similar:
-        st.caption("Pick one of your saved spots and we'll find similar venues.")
-        if not saved:
-            st.info("Save some venues first to get recommendations.")
-        else:
-            sim_options = {f"{v['name']} ({v.get('city', '')})": v["venueId"] for v in saved}
-            sim_selected = st.selectbox("Base your recommendations on:", list(sim_options.keys()), key="sim_select")
-            base_id = sim_options[sim_selected]
+    # ── Custom lists ───────────────────────────────────────────────────────────
+    for lst, tab in zip(user_lists, sub_customs):
+        list_id = lst["listId"]
+        with tab:
+            hdr_left, hdr_right = st.columns([5, 1])
+            with hdr_left:
+                st.markdown(f"### 📁 {lst['name']}")
+            with hdr_right:
+                dl_key = f"dellist_{list_id}"
+                if st.button("🗑 Delete list", key=dl_key, use_container_width=True):
+                    _, dl_err = api_delete(f"/lists/{list_id}")
+                    if dl_err:
+                        st.session_state.list_msgs[dl_key] = ("error", dl_err)
+                    else:
+                        st.session_state.list_msgs[dl_key] = ("success", "List deleted!")
+                    st.rerun()
+                msg = st.session_state.list_msgs.get(dl_key)
+                if msg:
+                    if msg[0] == "success":
+                        st.success(msg[1])
+                    else:
+                        st.error(msg[1])
 
-            similar, sim_err = api_get(f"/venues/{base_id}/similar")
-            if sim_err:
-                show_api_error(sim_err)
-            elif not similar:
-                st.info(f"No similar venues found for **{sim_selected}**.")
-            else:
-                saved_ids = {v["venueId"] for v in saved}
-                st.markdown(f"**Venues similar to {sim_selected}:**")
-                for v in similar:
-                    vid = v["venueId"]
-                    rating = safe_float(v.get("rating")) or 0.0
-                    with st.container(border=True):
-                        c1, c2 = st.columns([5, 1])
-                        with c1:
-                            st.markdown(f"**{v['name']}**  {stars_str(rating)} **{round(rating, 1)}**")
-                            st.caption(f"📍 {v.get('city', '')}  {v.get('address', '')}")
-                        with c2:
-                            st.markdown("<br>", unsafe_allow_html=True)
-                            if vid in saved_ids:
-                                st.success("Saved")
+            if lst.get("description"):
+                st.markdown(f"_{lst['description']}_")
+
+            list_venues, lv_err = api_get(f"/lists/{list_id}")
+            if lv_err:
+                show_api_error(lv_err)
+                continue
+            list_venues = list_venues or []
+
+            if not list_venues:
+                st.info("No venues in this list yet. Use the Discover tab to add some.")
+                continue
+
+            for v in list_venues:
+                vid = v["venueId"]
+                rating = safe_float(v.get("rating")) or 0.0
+                with st.container(border=True):
+                    img_col, info_col, action_col = st.columns([1, 4, 1])
+                    with img_col:
+                        st.markdown(
+                            """<div style="background:#e8e0f0;border-radius:12px;height:90px;
+                               display:flex;align-items:center;justify-content:center;font-size:2rem;">🏛️</div>""",
+                            unsafe_allow_html=True,
+                        )
+                    with info_col:
+                        with st.container(key=f"venue-name-btn-list-{list_id}-{vid}"):
+                            if st.button(v["name"], key=f"list_{list_id}_open_{vid}"):
+                                st.session_state["selected_venue_id"] = vid
+                                st.switch_page("pages/42_Venue_Details.py")
+                        st.markdown(f"{stars_str(rating)} **{round(rating, 1)}**")
+                        st.caption(f"📍 {v.get('city', '')}  {v.get('address', '')}")
+                    with action_col:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        vis_key = f"lvis_{list_id}_{vid}"
+                        if st.button("✅ Visited", key=vis_key, use_container_width=True):
+                            _, vis_err = api_post(f"/users/{user_id}/visited", {"venueId": vid})
+                            if vis_err and "Duplicate" not in vis_err and "1062" not in vis_err:
+                                st.session_state.list_msgs[vis_key] = ("error", vis_err)
                             else:
-                                if st.button("🔖 Save", key=f"sim_save_{vid}", use_container_width=True, type="primary"):
-                                    _, s_err = api_post(f"/users/{user_id}/saved", {"venueId": vid})
-                                    if s_err and "Duplicate" not in s_err and "1062" not in s_err:
-                                        st.error(s_err)
-                                    else:
-                                        st.success("Saved!")
-                                        st.rerun()
+                                st.session_state.list_msgs[vis_key] = ("success", "Marked visited!")
+                            st.rerun()
+                        rm_key = f"rmlist_{list_id}_{vid}"
+                        if st.button("🗑 Remove", key=rm_key, use_container_width=True):
+                            _, rm_err = api_delete(f"/lists/{list_id}/venues", {"venueId": vid})
+                            if rm_err:
+                                st.session_state.list_msgs[rm_key] = ("error", rm_err)
+                            else:
+                                st.session_state.list_msgs[rm_key] = ("success", "Removed!")
+                            st.rerun()
+                        for k in (vis_key, rm_key):
+                            msg = st.session_state.list_msgs.get(k)
+                            if msg:
+                                if msg[0] == "success":
+                                    st.success(msg[1])
+                                else:
+                                    st.error(msg[1])
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TAB 3 — SIMILAR VENUES
+# ══════════════════════════════════════════════════════════════════════════════
+with tab_similar:
+    st.caption("Pick one of your saved spots and we'll find similar venues.")
+    if not saved:
+        st.info("Save some venues first to get recommendations.")
+    else:
+        sim_options = {f"{v['name']} ({v.get('city', '')})": v["venueId"] for v in saved}
+        sim_selected = st.selectbox("Base your recommendations on:", list(sim_options.keys()), key="sim_select")
+        base_id = sim_options[sim_selected]
+
+        similar, sim_err = api_get(f"/venues/{base_id}/similar")
+        if sim_err:
+            show_api_error(sim_err)
+        elif not similar:
+            st.info(f"No similar venues found for **{sim_selected}**.")
+        else:
+            st.markdown(f"**Venues similar to {sim_selected}:**")
+            for v in similar:
+                vid = v["venueId"]
+                rating = safe_float(v.get("rating")) or 0.0
+                with st.container(border=True):
+                    c1, c2 = st.columns([5, 1])
+                    with c1:
+                        with st.container(key=f"venue-name-btn-sim-{vid}"):
+                            if st.button(v["name"], key=f"sim_open_{vid}"):
+                                st.session_state["selected_venue_id"] = vid
+                                st.switch_page("pages/42_Venue_Details.py")
+                        st.markdown(f"{stars_str(rating)} **{round(rating, 1)}**")
+                        st.caption(f"📍 {v.get('city', '')}  {v.get('address', '')}")
+                    with c2:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        save_to_list_popover(vid, "sim")

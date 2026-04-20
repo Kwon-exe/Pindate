@@ -22,9 +22,9 @@ Built for CS3200 by The Itinerary Engineers using Streamlit, Flask, and MySQL.
 
 ### Steps
 1. Create a new Python environment in Python 3.11. 
-   * If you're using the regular Python distribution: 
+   * If you're using the regular Python distribution (note - this will use your default Python version): 
    ```bash
-   python -m venv .env –python=python3.11
+   python -m venv .env
    ```
    * If you're using Anaconda or Miniconda:
    ```bash
@@ -53,7 +53,7 @@ git clone git@github.com:Kwon-exe/Pindate.git
 
 6. Start the Docker containers.
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
 
 7. In your browser, input this URL to open the site.
@@ -61,4 +61,13 @@ docker compose up -d
 http://localhost:8501/
 ```
 
-8. You're in PinDate!
+8. You're in!
+
+### Logins
+**Note: you will be prompted with a login page upon landing.**
+
+Here is login info for each of our personas:
+|          | User | Owner | Admin | Data Analyst |
+| -------- | ---- | ----- | ----- | ------------ |
+| Username | `mayac` | `marcusr_owner` | `joshd_admin` | `nadiap_data` |
+| Password | `password` | `password` | `password` | `password` |

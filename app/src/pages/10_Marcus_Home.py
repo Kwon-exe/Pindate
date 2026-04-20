@@ -1,5 +1,6 @@
 import streamlit as st
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from modules.nav import SideBarLinks
 from modules.api_client import api_get, api_post, api_put, api_delete, show_api_error
 
@@ -9,14 +10,23 @@ SideBarLinks(show_home=False)
 user_id = st.session_state.get("user_id", 4)
 
 
+def _parse_ts(dt_str):
+    s = str(dt_str).replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        # Flask's default JSON provider emits HTTP-date: 'Sun, 20 Apr 2026 14:23:17 GMT'
+        dt = parsedate_to_datetime(str(dt_str))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def time_ago(dt_str):
     if not dt_str:
         return ""
     try:
-        s = str(dt_str).replace("Z", "+00:00")
-        dt = datetime.fromisoformat(s)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
+        dt = _parse_ts(dt_str)
         diff = datetime.now(timezone.utc) - dt
         d, secs = diff.days, diff.seconds
         if d >= 30:
@@ -37,11 +47,7 @@ def days_since(dt_str):
     if not dt_str:
         return 9999
     try:
-        s = str(dt_str).replace("Z", "+00:00")
-        dt = datetime.fromisoformat(s)
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        return (datetime.now(timezone.utc) - dt).days
+        return (datetime.now(timezone.utc) - _parse_ts(dt_str)).days
     except Exception:
         return 9999
 

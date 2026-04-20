@@ -22,6 +22,19 @@ if "active_vibes" not in st.session_state:
 
 st.title("Venues")
 
+# Left-align the text inside venue-name buttons (wrapped in st.container(key="venue-name-btn-*"))
+st.markdown(
+    """
+    <style>
+    div[class*="st-key-venue-name-btn-"] button p {
+        font-weight: 700 !important;
+        font-size: 1.15rem !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 tab_discover, tab_lists = st.tabs(["🔍 Discover", "🔖 My Lists"])
 
 
@@ -58,7 +71,10 @@ def venue_card(v, key_prefix):
                     unsafe_allow_html=True,
                 )
             with info_col:
-                st.markdown(f"### {v['name']}")
+                with st.container(key=f"venue-name-btn-{key_prefix}-{vid}"):
+                    if st.button(v["name"], key=f"{key_prefix}_open_{vid}"):
+                        st.session_state["selected_venue_id"] = vid
+                        st.switch_page("pages/42_Venue_Details.py")
                 st.markdown(f"{stars_str(rating)} **{round(rating, 1)}**{price_str}")
                 st.caption(f"📍 {v.get('city', '')}  {v.get('address', '')}")
                 if v.get("description"):

@@ -311,13 +311,13 @@ INSERT INTO Venues (ownerId, name, description, address, city, phoneNum, rating,
    (26, 'Pinball Prophet',       'Retro arcade and dive bar with tournaments every Friday.',         '311 Somerville Ave', 'Somerville', '617-555-0333', 4.30,  8.00, 35.00),
    (27, 'Harvard Film Archive',  'Independent art-house theater with curated film series.',          '24 Quincy St',       'Cambridge',  '617-555-0334', 4.80, 10.00, 20.00),
    (28, 'Esplanade Picnic Co.',  'Outdoor grab-and-go picnic company along the Charles River.',      '1 Embankment Rd',    'Boston',     '617-555-0335', 4.40, 12.00, 45.00);
- 
- 
+
+
 -- ============================================================
 -- VENUE CATEGORY (bridge table — 60+ rows)
 -- Categories: 1=Restaurant, 2=Bar, 3=Cafe, 4=Lounge, 5=Club, 6=Park, 7=Museum, 8=Theater, 9=Arcade, 10=Rooftop
 -- ============================================================
- 
+
 INSERT INTO VenueCategory (venueId, categoryId) VALUES
    (1, 2), (1, 10), (1, 4), (1, 1),
    (2, 3), (2, 1),
@@ -328,7 +328,7 @@ INSERT INTO VenueCategory (venueId, categoryId) VALUES
    (7, 2), (7, 1), (7, 4),
    (8, 3), (8, 1),
    (9, 2), (9, 4), (9, 1),
-   (10, 2), (10, 4), (10, 1),
+   (10, 2), (10, 4),
    (11, 10), (11, 2), (11, 5), (11, 1),
    (12, 1), (12, 4), (12, 2),
    (13, 3), (13, 1), (13, 6),
@@ -355,9 +355,8 @@ INSERT INTO VenueCategory (venueId, categoryId) VALUES
    (34, 8), (34, 7),
    (35, 6), (35, 1), (35, 3),
    (1, 5), (4, 4), (5, 5), (10, 1), (11, 4), (12, 10), (17, 10),
-   (20, 1), (21, 4), (23, 1), (25, 10), (29, 1), (32, 2), (33, 4),
-   (6, 2), (7, 10), (9, 2), (13, 4), (18, 10), (22, 1), (24, 2),
-   (26, 2), (27, 3), (28, 9), (30, 3);
+   (20, 1), (23, 1), (25, 10), (29, 1), (33, 4),
+   (6, 2), (7, 10), (13, 4), (18, 10), (28, 9), (30, 3);
  
  
 -- ============================================================

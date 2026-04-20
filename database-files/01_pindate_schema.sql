@@ -266,7 +266,7 @@ INSERT INTO Users (email, pwdHash, firstName, lastName, username, role, createdA
  
 -- Data Analysts (role = 'DATA_ANALYST')
 INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role, createdAt) VALUES
-   ('analyst1@pindate.com', 'password', 'Nadia',   'Patel',  'nadiap_data',  '617-555-0501', 'Boston',    'DATA_ANALYST', '2026-01-05 12:30:00'),
+   ('analyst1@pindate.com', 'password', 'Joey',   'Maple',  'joeym_data',  '617-555-0501', 'Boston',    'DATA_ANALYST', '2026-01-05 12:30:00'),
    ('analyst2@pindate.com', 'password', 'Marcus',  'Owens',  'marcuso_da',   '617-555-0502', 'Cambridge', 'DATA_ANALYST', '2026-01-10 10:18:00'),
    ('analyst3@pindate.com', 'password', 'Jasmine', 'Wu',     'jasminew_da',  '617-555-0503', 'Boston',    'DATA_ANALYST', '2026-01-15 14:42:00'),
    ('analyst4@pindate.com', 'password', 'Derek',   'Bishop', 'derekb_da',    '617-555-0504', 'Somerville','DATA_ANALYST', '2026-02-01 09:55:00');

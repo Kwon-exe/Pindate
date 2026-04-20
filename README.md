@@ -69,5 +69,5 @@ http://localhost:8501/
 Here is login info for each of our personas:
 |          | User | Owner | Admin | Data Analyst |
 | -------- | ---- | ----- | ----- | ------------ |
-| Username | `mayac` | `marcusr_owner` | `joshd_admin` | `nadiap_data` |
+| Username | `mayac` | `marcusr_owner` | `joshd_admin` | `joeym_data` |
 | Password | `password` | `password` | `password` | `password` |

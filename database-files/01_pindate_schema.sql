@@ -210,6 +210,11 @@ CREATE TABLE AdminLog (
 );
 
 
+-- ============================================================
+-- USERS (40 total: 25 customers, 8 venue owners, 3 admins, 4 data analysts)
+-- accountIds 1-25 = CUSTOMER, 26-33 = VENUE_OWNER, 34-36 = ADMIN, 37-40 = DATA_ANALYST
+-- ============================================================
+ 
 INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role) VALUES
    ('maya.chen@email.com',     'password', 'Maya',     'Chen',      'mayac',     '617-555-0101', 'Boston',      'CUSTOMER'),
    ('james.park@email.com',    'password', 'James',    'Park',      'jpark99',   '617-555-0102', 'Cambridge',   'CUSTOMER'),
@@ -853,3 +858,4 @@ INSERT INTO AdminLog (appId, reportId, adminId, action, targetTable, targetId, n
    (42,   NULL, 34, 'APPROVED_APPLICATION', 'VenueApplications', 42, 'Wellness cafe approved.'),
    (44,   NULL, 35, 'APPROVED_APPLICATION', 'VenueApplications', 44, 'Entertainment permit verified.'),
    (47,   NULL, 36, 'APPROVED_APPLICATION', 'VenueApplications', 47, 'Historic use permit confirmed.');
+ 

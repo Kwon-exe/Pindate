@@ -17,7 +17,8 @@ def get_signups():
             SELECT DATE(createdAt) AS signupDate,
                    COUNT(accountId) AS newSignups
             FROM Users
-            WHERE (%s IS NULL OR DATE(createdAt) >= %s)
+            WHERE role = 'CUSTOMER'
+              AND (%s IS NULL OR DATE(createdAt) >= %s)
               AND (%s IS NULL OR DATE(createdAt) <= %s)
             GROUP BY DATE(createdAt)
             ORDER BY signupDate

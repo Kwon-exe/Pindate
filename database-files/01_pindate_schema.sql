@@ -216,59 +216,83 @@ CREATE TABLE AdminLog (
 -- accountIds 1-25 = CUSTOMER, 26-33 = VENUE_OWNER, 34-36 = ADMIN, 37-40 = DATA_ANALYST
 -- ============================================================
  
-INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role) VALUES
-   ('maya.chen@email.com',     'password', 'Maya',     'Chen',      'mayac',     '617-555-0101', 'Boston',      'CUSTOMER'),
-   ('james.park@email.com',    'password', 'James',    'Park',      'jpark99',   '617-555-0102', 'Cambridge',   'CUSTOMER'),
-   ('sofia.reyes@email.com',   'password', 'Sofia',    'Reyes',     'sofiaar',   '617-555-0103', 'Somerville',  'CUSTOMER'),
-   ('ethan.nguyen@email.com',  'password', 'Ethan',    'Nguyen',    'ethann',    '617-555-0104', 'Boston',      'CUSTOMER'),
-   ('olivia.brooks@email.com', 'password', 'Olivia',   'Brooks',    'liv_b',     '617-555-0105', 'Brookline',   'CUSTOMER'),
-   ('noah.patel@email.com',    'password', 'Noah',     'Patel',     'noahp',     '617-555-0106', 'Cambridge',   'CUSTOMER'),
-   ('ava.martinez@email.com',  'password', 'Ava',      'Martinez',  'avam',      '617-555-0107', 'Allston',     'CUSTOMER'),
-   ('liam.obrien@email.com',   'password', 'Liam',     'OBrien',    'liamob',    '617-555-0108', 'Boston',      'CUSTOMER'),
-   ('isabella.kim@email.com',  'password', 'Isabella', 'Kim',       'bellak',    '617-555-0109', 'Cambridge',   'CUSTOMER'),
-   ('mason.wright@email.com',  'password', 'Mason',    'Wright',    'masonw',    '617-555-0110', 'Somerville',  'CUSTOMER'),
-   ('zoe.thompson@email.com',  'password', 'Zoe',      'Thompson',  'zoet',      '617-555-0111', 'Boston',      'CUSTOMER'),
-   ('lucas.fisher@email.com',  'password', 'Lucas',    'Fisher',    'lucasf',    '617-555-0112', 'Brookline',   'CUSTOMER'),
-   ('amelia.hughes@email.com', 'password', 'Amelia',   'Hughes',    'ameliah',   '617-555-0113', 'Cambridge',   'CUSTOMER'),
-   ('daniel.ortiz@email.com',  'password', 'Daniel',   'Ortiz',     'danielo',   '617-555-0114', 'Boston',      'CUSTOMER'),
-   ('harper.singh@email.com',  'password', 'Harper',   'Singh',     'harpers',   '617-555-0115', 'Somerville',  'CUSTOMER'),
-   ('elijah.cohen@email.com',  'password', 'Elijah',   'Cohen',     'elijahc',   '617-555-0116', 'Allston',     'CUSTOMER'),
-   ('mia.walker@email.com',    'password', 'Mia',      'Walker',    'miaw',      '617-555-0117', 'Boston',      'CUSTOMER'),
-   ('henry.lopez@email.com',   'password', 'Henry',    'Lopez',     'henryl',    '617-555-0118', 'Cambridge',   'CUSTOMER'),
-   ('charlotte.ali@email.com', 'password', 'Charlotte','Ali',       'charla',    '617-555-0119', 'Brookline',   'CUSTOMER'),
-   ('benjamin.yu@email.com',   'password', 'Benjamin', 'Yu',        'benyu',     '617-555-0120', 'Boston',      'CUSTOMER'),
-   ('ella.ramirez@email.com',  'password', 'Ella',     'Ramirez',   'ellar',     '617-555-0121', 'Somerville',  'CUSTOMER'),
-   ('oliver.clark@email.com',  'password', 'Oliver',   'Clark',     'oliverc',   '617-555-0122', 'Boston',      'CUSTOMER'),
-   ('lily.adams@email.com',    'password', 'Lily',     'Adams',     'lilya',     '617-555-0123', 'Cambridge',   'CUSTOMER'),
-   ('jackson.ito@email.com',   'password', 'Jackson',  'Ito',       'jacksoni',  '617-555-0124', 'Allston',     'CUSTOMER'),
-   ('grace.morris@email.com',  'password', 'Grace',    'Morris',    'gracem',    '617-555-0125', 'Boston',      'CUSTOMER');
+INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role, createdAt) VALUES
+   ('maya.chen@email.com',     'password', 'Maya',     'Chen',      'mayac',     '617-555-0101', 'Boston',      'CUSTOMER', '2026-01-08 09:14:00'),
+   ('james.park@email.com',    'password', 'James',    'Park',      'jpark99',   '617-555-0102', 'Cambridge',   'CUSTOMER', '2026-01-12 17:42:00'),
+   ('sofia.reyes@email.com',   'password', 'Sofia',    'Reyes',     'sofiaar',   '617-555-0103', 'Somerville',  'CUSTOMER', '2026-01-19 11:03:00'),
+   ('ethan.nguyen@email.com',  'password', 'Ethan',    'Nguyen',    'ethann',    '617-555-0104', 'Boston',      'CUSTOMER', '2026-01-25 08:55:00'),
+   ('olivia.brooks@email.com', 'password', 'Olivia',   'Brooks',    'liv_b',     '617-555-0105', 'Brookline',   'CUSTOMER', '2026-01-25 19:21:00'),
+   ('noah.patel@email.com',    'password', 'Noah',     'Patel',     'noahp',     '617-555-0106', 'Cambridge',   'CUSTOMER', '2026-02-03 13:30:00'),
+   ('ava.martinez@email.com',  'password', 'Ava',      'Martinez',  'avam',      '617-555-0107', 'Allston',     'CUSTOMER', '2026-02-10 10:15:00'),
+   ('liam.obrien@email.com',   'password', 'Liam',     'OBrien',    'liamob',    '617-555-0108', 'Boston',      'CUSTOMER', '2026-02-14 08:02:00'),
+   ('isabella.kim@email.com',  'password', 'Isabella', 'Kim',       'bellak',    '617-555-0109', 'Cambridge',   'CUSTOMER', '2026-02-14 12:48:00'),
+   ('mason.wright@email.com',  'password', 'Mason',    'Wright',    'masonw',    '617-555-0110', 'Somerville',  'CUSTOMER', '2026-02-14 20:37:00'),
+   ('zoe.thompson@email.com',  'password', 'Zoe',      'Thompson',  'zoet',      '617-555-0111', 'Boston',      'CUSTOMER', '2026-02-22 14:09:00'),
+   ('lucas.fisher@email.com',  'password', 'Lucas',    'Fisher',    'lucasf',    '617-555-0112', 'Brookline',   'CUSTOMER', '2026-02-28 16:44:00'),
+   ('amelia.hughes@email.com', 'password', 'Amelia',   'Hughes',    'ameliah',   '617-555-0113', 'Cambridge',   'CUSTOMER', '2026-03-05 09:18:00'),
+   ('daniel.ortiz@email.com',  'password', 'Daniel',   'Ortiz',     'danielo',   '617-555-0114', 'Boston',      'CUSTOMER', '2026-03-05 21:11:00'),
+   ('harper.singh@email.com',  'password', 'Harper',   'Singh',     'harpers',   '617-555-0115', 'Somerville',  'CUSTOMER', '2026-03-12 11:27:00'),
+   ('elijah.cohen@email.com',  'password', 'Elijah',   'Cohen',     'elijahc',   '617-555-0116', 'Allston',     'CUSTOMER', '2026-03-17 10:05:00'),
+   ('mia.walker@email.com',    'password', 'Mia',      'Walker',    'miaw',      '617-555-0117', 'Boston',      'CUSTOMER', '2026-03-17 15:52:00'),
+   ('henry.lopez@email.com',   'password', 'Henry',    'Lopez',     'henryl',    '617-555-0118', 'Cambridge',   'CUSTOMER', '2026-03-17 22:14:00'),
+   ('charlotte.ali@email.com', 'password', 'Charlotte','Ali',       'charla',    '617-555-0119', 'Brookline',   'CUSTOMER', '2026-03-24 13:40:00'),
+   ('benjamin.yu@email.com',   'password', 'Benjamin', 'Yu',        'benyu',     '617-555-0120', 'Boston',      'CUSTOMER', '2026-04-01 09:25:00'),
+   ('ella.ramirez@email.com',  'password', 'Ella',     'Ramirez',   'ellar',     '617-555-0121', 'Somerville',  'CUSTOMER', '2026-04-07 11:12:00'),
+   ('oliver.clark@email.com',  'password', 'Oliver',   'Clark',     'oliverc',   '617-555-0122', 'Boston',      'CUSTOMER', '2026-04-07 18:33:00'),
+   ('lily.adams@email.com',    'password', 'Lily',     'Adams',     'lilya',     '617-555-0123', 'Cambridge',   'CUSTOMER', '2026-04-12 10:47:00'),
+   ('jackson.ito@email.com',   'password', 'Jackson',  'Ito',       'jacksoni',  '617-555-0124', 'Allston',     'CUSTOMER', '2026-04-15 12:29:00'),
+   ('grace.morris@email.com',  'password', 'Grace',    'Morris',    'gracem',    '617-555-0125', 'Boston',      'CUSTOMER', '2026-04-15 19:56:00');
  
  
 -- Venue Owners (role = 'VENUE_OWNER')
-INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, role) VALUES
-   ('marcus.r@venues.com',     'password', 'Marcus',   'Rivera',   'marcusr_owner', '617-555-0201', 'VENUE_OWNER'),
-   ('priya.sharma@venues.com', 'password', 'Priya',    'Sharma',   'priyas_owner',  '617-555-0202', 'VENUE_OWNER'),
-   ('carlos.m@venues.com',     'password', 'Carlos',   'Mendez',   'carlosm_owner', '617-555-0203', 'VENUE_OWNER'),
-   ('rachel.goldberg@venues.com','password','Rachel',  'Goldberg', 'rachelg_owner', '617-555-0204', 'VENUE_OWNER'),
-   ('dimitri.volkov@venues.com','password','Dimitri',  'Volkov',   'dimitriv_owner','617-555-0205', 'VENUE_OWNER'),
-   ('amara.okafor@venues.com', 'password', 'Amara',    'Okafor',   'amarao_owner',  '617-555-0206', 'VENUE_OWNER'),
-   ('hiroshi.tanaka@venues.com','password','Hiroshi',  'Tanaka',   'hiroshit_owner','617-555-0207', 'VENUE_OWNER'),
-   ('gabriela.silva@venues.com','password','Gabriela', 'Silva',    'gabrielas_owner','617-555-0208','VENUE_OWNER');
+INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, role, createdAt) VALUES
+   ('marcus.r@venues.com',     'password', 'Marcus',   'Rivera',   'marcusr_owner', '617-555-0201', 'VENUE_OWNER', '2026-01-05 10:12:00'),
+   ('priya.sharma@venues.com', 'password', 'Priya',    'Sharma',   'priyas_owner',  '617-555-0202', 'VENUE_OWNER', '2026-01-20 14:38:00'),
+   ('carlos.m@venues.com',     'password', 'Carlos',   'Mendez',   'carlosm_owner', '617-555-0203', 'VENUE_OWNER', '2026-02-08 09:47:00'),
+   ('rachel.goldberg@venues.com','password','Rachel',  'Goldberg', 'rachelg_owner', '617-555-0204', 'VENUE_OWNER', '2026-02-25 16:21:00'),
+   ('dimitri.volkov@venues.com','password','Dimitri',  'Volkov',   'dimitriv_owner','617-555-0205', 'VENUE_OWNER', '2026-03-10 11:05:00'),
+   ('amara.okafor@venues.com', 'password', 'Amara',    'Okafor',   'amarao_owner',  '617-555-0206', 'VENUE_OWNER', '2026-03-18 13:52:00'),
+   ('hiroshi.tanaka@venues.com','password','Hiroshi',  'Tanaka',   'hiroshit_owner','617-555-0207', 'VENUE_OWNER', '2026-03-30 10:34:00'),
+   ('gabriela.silva@venues.com','password','Gabriela', 'Silva',    'gabrielas_owner','617-555-0208','VENUE_OWNER', '2026-04-10 15:19:00');
  
  
 -- Admins (role = 'ADMIN')
-INSERT INTO Users (email, pwdHash, firstName, lastName, username, role) VALUES
-   ('admin1@pindate.com', 'password', 'Josh',    'Doe',    'joshd_admin',    'ADMIN'),
-   ('admin2@pindate.com', 'password', 'Tom',     'Nguyen', 'tomn_admin',     'ADMIN'),
-   ('admin3@pindate.com', 'password', 'Rebecca', 'Stone',  'rebeccas_admin', 'ADMIN');
+INSERT INTO Users (email, pwdHash, firstName, lastName, username, role, createdAt) VALUES
+   ('admin1@pindate.com', 'password', 'Josh',    'Doe',    'joshd_admin',    'ADMIN', '2026-01-02 09:00:00'),
+   ('admin2@pindate.com', 'password', 'Tom',     'Nguyen', 'tomn_admin',     'ADMIN', '2026-01-02 09:05:00'),
+   ('admin3@pindate.com', 'password', 'Rebecca', 'Stone',  'rebeccas_admin', 'ADMIN', '2026-01-04 11:15:00');
  
  
 -- Data Analysts (role = 'DATA_ANALYST')
-INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role) VALUES
-   ('analyst1@pindate.com', 'password', 'Nadia',   'Patel',  'nadiap_data',  '617-555-0501', 'Boston',    'DATA_ANALYST'),
-   ('analyst2@pindate.com', 'password', 'Marcus',  'Owens',  'marcuso_da',   '617-555-0502', 'Cambridge', 'DATA_ANALYST'),
-   ('analyst3@pindate.com', 'password', 'Jasmine', 'Wu',     'jasminew_da',  '617-555-0503', 'Boston',    'DATA_ANALYST'),
-   ('analyst4@pindate.com', 'password', 'Derek',   'Bishop', 'derekb_da',    '617-555-0504', 'Somerville','DATA_ANALYST');
+INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role, createdAt) VALUES
+   ('analyst1@pindate.com', 'password', 'Nadia',   'Patel',  'nadiap_data',  '617-555-0501', 'Boston',    'DATA_ANALYST', '2026-01-05 12:30:00'),
+   ('analyst2@pindate.com', 'password', 'Marcus',  'Owens',  'marcuso_da',   '617-555-0502', 'Cambridge', 'DATA_ANALYST', '2026-01-10 10:18:00'),
+   ('analyst3@pindate.com', 'password', 'Jasmine', 'Wu',     'jasminew_da',  '617-555-0503', 'Boston',    'DATA_ANALYST', '2026-01-15 14:42:00'),
+   ('analyst4@pindate.com', 'password', 'Derek',   'Bishop', 'derekb_da',    '617-555-0504', 'Somerville','DATA_ANALYST', '2026-02-01 09:55:00');
+
+-- Additional customers (accountIds 41-60) — added after analysts for richer signup analytics.
+-- Dates cluster around Valentine's Day (2026-02-14), St Patty's (2026-03-17), and show a growth curve.
+INSERT INTO Users (email, pwdHash, firstName, lastName, username, phoneNum, city, role, createdAt) VALUES
+   ('riley.chen@email.com',    'password', 'Riley',    'Chen',      'rileyc',    '617-555-0126', 'Boston',      'CUSTOMER', '2026-01-08 18:52:00'),
+   ('jordan.khan@email.com',   'password', 'Jordan',   'Khan',      'jordank',   '617-555-0127', 'Cambridge',   'CUSTOMER', '2026-01-14 10:27:00'),
+   ('nina.rossi@email.com',    'password', 'Nina',     'Rossi',     'ninar',     '617-555-0128', 'Somerville',  'CUSTOMER', '2026-01-20 15:41:00'),
+   ('kai.anderson@email.com',  'password', 'Kai',      'Anderson',  'kaia',      '617-555-0129', 'Brookline',   'CUSTOMER', '2026-02-02 11:08:00'),
+   ('priya.desai@email.com',   'password', 'Priya',    'Desai',     'priyad',    '617-555-0130', 'Boston',      'CUSTOMER', '2026-02-14 07:31:00'),
+   ('marco.silva@email.com',   'password', 'Marco',    'Silva',     'marcos',    '617-555-0131', 'Allston',     'CUSTOMER', '2026-02-14 23:04:00'),
+   ('tess.nakamura@email.com', 'password', 'Tess',     'Nakamura',  'tessn',     '617-555-0132', 'Cambridge',   'CUSTOMER', '2026-02-17 12:14:00'),
+   ('rami.haddad@email.com',   'password', 'Rami',     'Haddad',    'ramih',     '617-555-0133', 'Boston',      'CUSTOMER', '2026-02-24 16:50:00'),
+   ('luna.ortiz@email.com',    'password', 'Luna',     'Ortiz',     'lunao',     '617-555-0134', 'Somerville',  'CUSTOMER', '2026-03-01 09:22:00'),
+   ('theo.bauer@email.com',    'password', 'Theo',     'Bauer',     'theob',     '617-555-0135', 'Boston',      'CUSTOMER', '2026-03-01 20:08:00'),
+   ('ivy.chen@email.com',      'password', 'Ivy',      'Chen',      'ivyc',      '617-555-0136', 'Brookline',   'CUSTOMER', '2026-03-08 11:55:00'),
+   ('sam.fitzgerald@email.com','password', 'Sam',      'Fitzgerald','samf',      '617-555-0137', 'Cambridge',   'CUSTOMER', '2026-03-15 14:17:00'),
+   ('zara.ahmed@email.com',    'password', 'Zara',     'Ahmed',     'zaraa',     '617-555-0138', 'Boston',      'CUSTOMER', '2026-03-15 19:46:00'),
+   ('dante.vargas@email.com',  'password', 'Dante',    'Vargas',    'dantev',    '617-555-0139', 'Allston',     'CUSTOMER', '2026-03-20 10:40:00'),
+   ('maya.o-reilly@email.com', 'password', 'Maya',     'O-Reilly',  'mayaor',    '617-555-0140', 'Somerville',  'CUSTOMER', '2026-03-20 22:03:00'),
+   ('august.park@email.com',   'password', 'August',   'Park',      'augustp',   '617-555-0141', 'Boston',      'CUSTOMER', '2026-04-03 13:12:00'),
+   ('juno.martinez@email.com', 'password', 'Juno',     'Martinez',  'junom',     '617-555-0142', 'Cambridge',   'CUSTOMER', '2026-04-10 16:29:00'),
+   ('remy.dubois@email.com',   'password', 'Remy',     'Dubois',    'remyd',     '617-555-0143', 'Brookline',   'CUSTOMER', '2026-04-14 11:48:00'),
+   ('nori.takahashi@email.com','password', 'Nori',     'Takahashi', 'norit',     '617-555-0144', 'Boston',      'CUSTOMER', '2026-04-18 09:33:00'),
+   ('sascha.ivanov@email.com', 'password', 'Sascha',   'Ivanov',    'saschai',   '617-555-0145', 'Allston',     'CUSTOMER', '2026-04-18 17:20:00');
  
  
 -- ============================================================
@@ -677,8 +701,135 @@ INSERT INTO SavedVenues (userId, venueId) VALUES
    (23, 13), (23, 16), (23, 31), (23, 27),
    (24, 25), (24, 28), (24, 23), (24, 12),
    (25, 4), (25, 29), (25, 34), (25, 35), (25, 1), (25, 17);
- 
- 
+
+
+-- ============================================================
+-- NEW CUSTOMER REVIEWS (accountIds 41-54) — mix of ratings incl. bad ones
+-- Users 55-60 intentionally have no reviews/saves -> 'Never Active' in retention
+-- ============================================================
+
+INSERT INTO Reviews (userId, venueId, comment, rating, isFlagged, createdAt) VALUES
+   (41,  5, 'Nice spot but service was slow. We waited 25 minutes for water.',   2.80, FALSE, '2026-01-10 18:30:00'),
+   (41, 12, 'Decent vibes but overpriced for what you get.',                     3.20, FALSE, '2026-01-14 19:15:00'),
+   (42,  8, 'Fine. Nothing special, wouldn''t go out of my way.',                3.00, FALSE, '2026-01-16 19:00:00'),
+   (42, 20, 'Not worth it — the wait was absurd and our food was cold.',         2.20, FALSE, '2026-01-18 21:22:00'),
+   (43,  3, 'Fun for a single round but nothing to bring me back.',              3.30, FALSE, '2026-01-28 19:40:00'),
+   (43, 14, 'Great beer list. Bathrooms were a disaster.',                       3.00, FALSE, '2026-02-18 20:05:00'),
+   (44,  7, 'Cozy but the menu was a lot more limited than the photos suggest.', 3.40, FALSE, '2026-02-25 19:50:00'),
+   (45, 11, 'Rooftop was closed half the time we were there. Felt cheated.',     2.90, FALSE, '2026-03-05 20:12:00'),
+   (46, 25, 'Classic Italian date spot — pasta was perfect, wine even better.',  4.60, FALSE, '2026-03-18 19:30:00'),
+   (47, 22, 'Beer was great, food was mid. Would return for trivia night only.', 3.50, FALSE, '2026-03-15 20:18:00'),
+   (48, 17, 'Every bit worth the price. Celebrated our anniversary and cried.',  4.90, FALSE, '2026-04-12 19:45:00'),
+   (49, 31, 'Quiet but the wifi was nonexistent. Hard to use as a study spot.',  2.50, FALSE, '2026-04-06 18:20:00'),
+   (50,  4, 'Stunning view. Food is maybe a 7/10 but the view is a 10.',         4.20, FALSE, '2026-04-15 20:00:00'),
+   (51, 16, 'Underwhelming. Our server checked out ten minutes in.',             2.70, FALSE, '2026-04-18 19:10:00'),
+   (52,  2, 'Great lattes. Music was a little loud for studying.',               4.10, FALSE, '2026-04-05 18:35:00'),
+   (53, 30, 'Guac was dry, chips stale. Skip.',                                  2.30, FALSE, '2026-04-18 19:25:00'),
+   (54, 10, 'Speakeasy entrance is gimmicky, drinks were nothing special.',      3.00, FALSE, '2026-04-03 20:40:00');
+
+
+-- ============================================================
+-- RETRO-DATE EXISTING REVIEWS/SAVES (accountIds 1-25) to spread
+-- lastActivity across Active / At Risk / Inactive buckets for retention
+-- ============================================================
+
+UPDATE Reviews SET createdAt = CASE userId
+   WHEN  1 THEN '2026-01-15 12:00:00'  -- Inactive
+   WHEN  2 THEN '2026-01-17 14:00:00'  -- Inactive
+   WHEN  3 THEN '2026-03-10 18:00:00'  -- At Risk
+   WHEN  4 THEN '2026-02-28 19:00:00'  -- At Risk
+   WHEN  5 THEN '2026-03-15 20:00:00'  -- At Risk
+   WHEN  6 THEN '2026-03-05 17:00:00'  -- At Risk
+   WHEN  7 THEN '2026-02-20 20:00:00'  -- At Risk
+   WHEN  8 THEN '2026-04-10 18:00:00'  -- Active
+   WHEN  9 THEN '2026-04-15 19:00:00'  -- Active
+   WHEN 10 THEN '2026-04-05 20:00:00'  -- Active
+   WHEN 11 THEN '2026-04-12 21:00:00'  -- Active
+   WHEN 12 THEN '2026-03-25 19:00:00'  -- Active (barely)
+   WHEN 13 THEN '2026-04-08 20:00:00'  -- Active
+   WHEN 14 THEN '2026-04-15 18:00:00'  -- Active
+   WHEN 15 THEN '2026-04-01 19:00:00'  -- Active
+   WHEN 16 THEN '2026-04-18 20:00:00'  -- Active
+   WHEN 17 THEN '2026-04-10 21:00:00'  -- Active
+   WHEN 18 THEN '2026-04-14 19:00:00'  -- Active
+   WHEN 19 THEN '2026-04-16 20:00:00'  -- Active
+   WHEN 20 THEN '2026-04-15 21:00:00'  -- Active
+   WHEN 21 THEN '2026-04-18 19:00:00'  -- Active
+   WHEN 22 THEN '2026-04-17 20:00:00'  -- Active
+   WHEN 23 THEN '2026-04-19 21:00:00'  -- Active
+   WHEN 24 THEN '2026-04-19 19:00:00'  -- Active
+   WHEN 25 THEN '2026-04-19 20:00:00'  -- Active
+   ELSE createdAt
+END
+WHERE userId BETWEEN 1 AND 25;
+
+UPDATE SavedVenues SET savedAt = CASE userId
+   WHEN  1 THEN '2026-01-12 10:00:00'
+   WHEN  2 THEN '2026-01-14 11:00:00'
+   WHEN  3 THEN '2026-02-15 10:00:00'
+   WHEN  4 THEN '2026-02-10 11:00:00'
+   WHEN  5 THEN '2026-02-20 10:00:00'
+   WHEN  6 THEN '2026-02-18 11:00:00'
+   WHEN  7 THEN '2026-02-15 10:00:00'
+   WHEN  8 THEN '2026-03-10 10:00:00'
+   WHEN  9 THEN '2026-04-02 11:00:00'
+   WHEN 10 THEN '2026-03-28 10:00:00'
+   WHEN 11 THEN '2026-04-05 11:00:00'
+   WHEN 12 THEN '2026-03-15 10:00:00'
+   WHEN 13 THEN '2026-03-30 11:00:00'
+   WHEN 14 THEN '2026-04-05 10:00:00'
+   WHEN 15 THEN '2026-03-22 11:00:00'
+   WHEN 16 THEN '2026-04-05 10:00:00'
+   WHEN 17 THEN '2026-04-02 11:00:00'
+   WHEN 18 THEN '2026-04-08 10:00:00'
+   WHEN 19 THEN '2026-04-05 11:00:00'
+   WHEN 20 THEN '2026-04-08 10:00:00'
+   WHEN 21 THEN '2026-04-12 11:00:00'
+   WHEN 22 THEN '2026-04-10 10:00:00'
+   WHEN 23 THEN '2026-04-14 11:00:00'
+   WHEN 24 THEN '2026-04-17 10:00:00'
+   WHEN 25 THEN '2026-04-17 11:00:00'
+   ELSE savedAt
+END
+WHERE userId BETWEEN 1 AND 25;
+
+
+-- ============================================================
+-- NEW CUSTOMER SAVES (accountIds 41-54)
+-- Each user's savedAt <= their latest review date, matching their retention bucket
+-- ============================================================
+
+INSERT INTO SavedVenues (userId, venueId, savedAt) VALUES
+   (41,  3, '2026-01-09 18:00:00'),
+   (41, 12, '2026-01-11 19:00:00'),
+   (42,  5, '2026-01-14 18:00:00'),
+   (42, 20, '2026-01-16 19:00:00'),
+   (43, 14, '2026-01-25 19:00:00'),
+   (43,  3, '2026-02-10 18:00:00'),
+   (44,  7, '2026-02-18 19:00:00'),
+   (44, 22, '2026-02-22 19:00:00'),
+   (45, 11, '2026-02-20 19:00:00'),
+   (45, 25, '2026-02-28 19:00:00'),
+   (46, 25, '2026-02-20 19:00:00'),
+   (46,  8, '2026-03-10 19:00:00'),
+   (47, 22, '2026-02-25 19:00:00'),
+   (47, 18, '2026-03-10 19:00:00'),
+   (48, 17, '2026-03-10 19:00:00'),
+   (48,  1, '2026-04-05 19:00:00'),
+   (49, 31, '2026-03-15 19:00:00'),
+   (49,  9, '2026-04-01 19:00:00'),
+   (50,  4, '2026-03-20 19:00:00'),
+   (50, 17, '2026-04-10 19:00:00'),
+   (51, 16, '2026-03-25 19:00:00'),
+   (51, 27, '2026-04-15 19:00:00'),
+   (52,  2, '2026-03-25 19:00:00'),
+   (52, 34, '2026-04-02 19:00:00'),
+   (53, 30, '2026-03-25 19:00:00'),
+   (53,  6, '2026-04-15 19:00:00'),
+   (54, 10, '2026-03-28 19:00:00'),
+   (54, 19, '2026-04-01 19:00:00');
+
+
 -- ============================================================
 -- VENUE APPLICATIONS (12 total)
 -- ============================================================

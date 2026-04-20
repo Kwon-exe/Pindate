@@ -6,5 +6,5 @@ secrets/
 .env.local
 */logs/*
 .vscode/
-.venv
+/vendor
 *.Identifier

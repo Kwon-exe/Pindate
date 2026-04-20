@@ -5,6 +5,11 @@ from mysql.connector import Error
 venues = Blueprint('venues', __name__)
 
 
+def unknown_if_blank(value):
+    text = str(value).strip() if value is not None else ""
+    return text if text else "Unknown"
+
+
 # Detect duplicate venue names [Josh-4]
 @venues.route('/duplicates', methods=['GET'])
 def get_duplicate_venues():
@@ -143,11 +148,6 @@ def get_venue(venue_id):
 def create_venue_from_application(venue_id):
     cursor = get_db().cursor(dictionary=True)
     try:
-        data = request.get_json(silent=True) or {}
-        city = data.get('city')
-        if not city:
-            return jsonify({"error": "'city' is required to create venue"}), 400
-
         cursor.execute(
             """
             SELECT ownerId, name, description, address, phone, minPrice, maxPrice, status
@@ -164,16 +164,32 @@ def create_venue_from_application(venue_id):
 
         cursor.execute(
             """
+            SELECT venueId
+            FROM Venues
+            WHERE ownerId = %s AND name = %s AND address = %s
+            ORDER BY venueId DESC
+            LIMIT 1
+            """,
+            (app_row['ownerId'], app_row['name'], app_row['address'])
+        )
+        existing = cursor.fetchone()
+        if existing:
+            return jsonify({"message": "Venue already created", "venueId": existing['venueId']}), 200
+
+        city = "Unknown"
+
+        cursor.execute(
+            """
             INSERT INTO Venues (ownerId, name, description, address, city, phoneNum, minPrice, maxPrice)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 app_row['ownerId'],
-                app_row['name'],
-                app_row['description'],
-                app_row['address'],
+                unknown_if_blank(app_row.get('name')),
+                unknown_if_blank(app_row.get('description')),
+                unknown_if_blank(app_row.get('address')),
                 city,
-                app_row['phone'],
+                unknown_if_blank(app_row.get('phone')),
                 app_row['minPrice'],
                 app_row['maxPrice']
             )
@@ -187,7 +203,7 @@ def create_venue_from_application(venue_id):
         cursor.close()
 
 
-# Update venue info (hours, phone, description) [Marcus-1]
+# Update venue info (hours, phonewhat, description) [Marcus-1]
 @venues.route('/<int:venue_id>', methods=['PUT'])
 def update_venue(venue_id):
     cursor = get_db().cursor(dictionary=True)

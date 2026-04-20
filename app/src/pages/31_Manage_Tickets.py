@@ -170,9 +170,14 @@ with tab_apps:
             review_id = st.number_input("Application ID", min_value=1, value=1, step=1)
             decision  = st.selectbox("Decision", ["APPROVED", "REJECTED", "PENDING"])
             if st.form_submit_button("Submit Decision", type="primary"):
-                _, r_err = api_put(f"/applications/{int(review_id)}", {"status": decision})
+                resp, r_err = api_put(f"/applications/{int(review_id)}", {"status": decision})
                 if r_err:
                     show_api_error(r_err)
                 else:
-                    st.success(f"Application {int(review_id)} marked as {decision}.")
+                    if decision == "APPROVED" and isinstance(resp, dict) and resp.get("venueId"):
+                        st.success(
+                            f"Application {int(review_id)} marked as APPROVED and venue #{resp['venueId']} was created."
+                        )
+                    else:
+                        st.success(f"Application {int(review_id)} marked as {decision}.")
                     st.rerun()

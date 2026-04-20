@@ -95,8 +95,11 @@ def SideBarLinks(show_home=False):
             admin_home_nav()
             admin_pages_nav()
 
-    # About link appears at the bottom for all roles
-    about_page_nav()
+    # About link appears at the bottom for customers and venue owners only
+    if not st.session_state["authenticated"] or st.session_state.get("role") in (
+        "date_planner", "date_seeker", "CUSTOMER", "venue_owner", "VENUE_OWNER"
+    ):
+        about_page_nav()
 
     if st.session_state["authenticated"]:
         if st.sidebar.button("Logout"):

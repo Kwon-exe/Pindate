@@ -25,7 +25,6 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
     st.caption("Track new user registrations and identify growth trends driven by marketing campaigns.")
-    st.caption("📌 Covers: Joey-1 (track user signups over time & marketing impact)")
 
     c1, c2 = st.columns(2)
     with c1:
@@ -67,7 +66,6 @@ with tab1:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab2:
     st.caption("Explore top-rated and most-saved venues, filtered by city or category.")
-    st.caption("📌 Covers: Joey-2 (cohesive dashboard of top venues by city & category)")
 
     categories, _ = api_get("/categories")
     c1, c2 = st.columns(2)
@@ -110,7 +108,6 @@ with tab2:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab3:
     st.caption("Find cities with high user activity but low venue listings — opportunities to grow the platform.")
-    st.caption("📌 Covers: Joey-3 (identify geographic coverage gaps to report to founders)")
 
     data, err = api_get("/analytics/coverage")
     if err:
@@ -145,7 +142,6 @@ with tab3:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab4:
     st.caption("Track review submission volume per venue to detect unusual spikes or review bombing.")
-    st.caption("📌 Covers: Joey-4 (monitor review volume per venue to detect data manipulation)")
 
     data, err = api_get("/analytics/reviews/volume")
     if err:
@@ -189,7 +185,6 @@ with tab4:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab5:
     st.caption("Identify active vs. inactive users to improve long-term retention strategies.")
-    st.caption("📌 Covers: Joey-5 (track user retention & identify inactive users)")
 
     data, err = api_get("/analytics/retention")
     if err:
@@ -241,7 +236,6 @@ with tab5:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab6:
     st.caption("A snapshot of key platform statistics for the founding team to make business decisions.")
-    st.caption("📌 Covers: Joey-6 (generate summary reports on venue popularity & platform health)")
 
     data, err = api_get("/analytics/summary")
     if err:

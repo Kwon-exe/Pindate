@@ -99,7 +99,6 @@ def venue_card(v, key_prefix):
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_discover:
     st.caption("Find your next perfect date spot")
-    st.caption("📌 Covers: Maya-1 (search & filter venues) · Maya-2 (save to lists)")
 
     search_q = st.text_input("", placeholder="Search restaurants, bars, parks...", label_visibility="collapsed", key="dv_search")
 
@@ -180,7 +179,6 @@ with tab_lists:
     saved = saved or []
     visited = visited or []
 
-    st.caption("📌 Covers: Maya-2 (saved lists) · Maya-5 (visited places) · Maya-6 (similar venues)")
     sub_saved, sub_visited, sub_similar = st.tabs([
         f"🔖 Saved ({len(saved)})",
         f"📍 Visited ({len(visited)})",

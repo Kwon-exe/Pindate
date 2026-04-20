@@ -30,7 +30,6 @@ tab_reviews, tab_flag = st.tabs(["💬 Customer Reviews", "🚩 Flag & Report"])
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_reviews:
     st.caption("Read customer feedback to understand what's working and what isn't.")
-    st.caption("📌 Covers: Marcus-4 (read and monitor reviews for your venue)")
 
     reviews, rev_err = api_get(f"/venues/{venue_id}/reviews")
     if rev_err:
@@ -78,7 +77,6 @@ with tab_reviews:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_flag:
     st.caption("Flag inaccurate or inappropriate reviews and submit tickets for admin review.")
-    st.caption("📌 Covers: Marcus-3 (flag reviews & submit report tickets to admin)")
 
     reviews_for_flag, _ = api_get(f"/venues/{venue_id}/reviews")
     if reviews_for_flag:

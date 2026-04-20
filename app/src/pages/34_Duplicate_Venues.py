@@ -18,7 +18,6 @@ tab_dupes, tab_tags, tab_log = st.tabs(["🔁 Duplicate Venues", "🏷️ Catego
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_dupes:
     st.caption("Detect venues with the same name and remove confirmed duplicates.")
-    st.caption("📌 Covers: Josh-4 (detect and remove duplicate venue listings)")
 
     dupes, err = api_get("/venues/duplicates")
     if err:
@@ -58,7 +57,6 @@ with tab_dupes:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_tags:
     st.caption("Add, rename, or remove the tags that help users discover date spots.")
-    st.caption("📌 Covers: Josh-5 (add, edit, or remove categories and vibes)")
 
     categories, c_err = api_get("/categories")
     vibes,      v_err = api_get("/vibes")
@@ -161,7 +159,6 @@ with tab_tags:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_log:
     st.caption("Track every admin action taken on the platform for accountability and traceability.")
-    st.caption("📌 Covers: Josh-6 (track all admin actions for accountability)")
 
     logs, err = api_get("/log")
     if err:

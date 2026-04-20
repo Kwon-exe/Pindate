@@ -31,8 +31,6 @@ tab_manage, tab_tags, tab_posts = st.tabs(["✏️ Venue Details", "🏷️ Cate
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_manage:
     st.caption("Update your venue's core information so customers always see accurate details.")
-    st.caption("📌 Covers: Marcus-1 (update venue info — phone, description, pricing)")
-
     col1, col2, col3 = st.columns(3)
     col1.metric("Rating", f"{float(venue.get('rating') or 0):.1f} / 5.0")
     col2.metric("Min Price", f"${float(venue.get('minPrice') or 0):.0f}")
@@ -71,7 +69,6 @@ with tab_manage:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_tags:
     st.caption("Tag your venue so date seekers can find you when filtering by activity or atmosphere.")
-    st.caption("📌 Covers: Marcus-2 (assign categories & vibes to venue)")
 
     all_cats, _  = api_get("/categories")
     all_vibes, _ = api_get("/vibes")
@@ -111,7 +108,6 @@ with tab_tags:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_posts:
     st.caption("Keep customers informed with updates, specials, and upcoming events.")
-    st.caption("📌 Covers: Marcus-6 (create and manage venue posts & events)")
 
     posts, post_err = api_get(f"/venues/{venue_id}/posts")
     if post_err:

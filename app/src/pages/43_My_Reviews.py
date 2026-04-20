@@ -21,7 +21,6 @@ tab_mine, tab_browse = st.tabs(["⭐ My Reviews", "💬 Browse Reviews"])
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_mine:
     st.caption("Write, edit, or delete your reviews for date spots you've visited.")
-    st.caption("📌 Covers: Maya-3 (write & manage reviews)")
 
     reviews, err = api_get(f"/users/{user_id}/reviews")
     if err:
@@ -96,7 +95,6 @@ with tab_mine:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_browse:
     st.caption("Read reviews and see what a spot is really like before you go.")
-    st.caption("📌 Covers: Maya-4 (browse venue reviews)")
 
     venues_list, _ = api_get("/venues/")
     browse_options = {}

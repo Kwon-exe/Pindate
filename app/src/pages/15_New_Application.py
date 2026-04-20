@@ -11,7 +11,6 @@ user_id = st.session_state.get("user_id", 4)
 
 st.title("Venue Application")
 st.caption("Submit a new venue to the platform so customers can discover your business.")
-st.caption("📌 Covers: Marcus-5 (submit a new venue listing for admin approval)")
 
 # ── Past applications ─────────────────────────────────────────────────────────
 st.subheader("My Applications")

@@ -28,7 +28,6 @@ def format_price_whole(value):
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_tickets:
     st.caption("Review and resolve tickets submitted by users and venue owners.")
-    st.caption("📌 Covers: Josh-1 (review and close report tickets to keep platform clean)")
 
     STATUSES = ["PENDING", "UNDER REVIEW", "RESOLVED", "DISMISSED"]
     status_filter = st.selectbox("Filter by status", ["All"] + STATUSES, key="t_status")
@@ -76,7 +75,6 @@ with tab_tickets:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_users:
     st.caption("Identify users with flagged reviews and take action to keep the platform safe.")
-    st.caption("📌 Covers: Josh-2 (moderate users generating spam or malicious content)")
 
     users, err = api_get("/users")
     if err:
@@ -125,7 +123,6 @@ with tab_users:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab_apps:
     st.caption("Approve or reject venue submissions to ensure only legitimate listings go live.")
-    st.caption("📌 Covers: Josh-3 (approve or reject new venue submissions from owners)")
 
     status_filter_a = st.selectbox("Filter by status", ["All", "PENDING", "APPROVED", "REJECTED"], key="app_status")
     params_a = {} if status_filter_a == "All" else {"status": status_filter_a}

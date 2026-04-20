@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
 from modules.nav import SideBarLinks
-from modules.api_client import api_get, api_post, show_api_error
+from modules.api_client import api_get, show_api_error
 
 st.set_page_config(layout="wide")
 SideBarLinks(show_home=False)
@@ -121,123 +121,11 @@ with st.container(border=True):
             st.markdown(" &nbsp; ".join([f"`{t}`" for t in tags]), unsafe_allow_html=True)
 
 
-# ── Action buttons (Save to list / Mark Visited / Leave a Review) ────────────
-user_id = st.session_state.get("user_id")
-action_msg = st.session_state.pop("detail_action_msg", None)
-
-user_lists, _ = api_get(f"/users/{user_id}/lists")
-# Backend uses a reserved list named 'Visited' to back the built-in Visited bucket.
-user_lists = [l for l in (user_lists or []) if l.get("name") != "Visited"]
-
-
-@st.dialog("Leave a Review")
-def leave_review_dialog():
-    st.caption(f"Reviewing **{venue.get('name', 'this venue')}**")
-    with st.form("leave_review_form", clear_on_submit=True):
-        rating_new = st.slider("Rating", 0.0, 5.0, 4.0, 0.5)
-        comment_new = st.text_area("Comment", placeholder="Share your experience...")
-        c1, c2 = st.columns(2)
-        with c1:
-            submitted = st.form_submit_button("Submit Review", type="primary", use_container_width=True)
-        with c2:
-            cancelled = st.form_submit_button("Cancel", use_container_width=True)
-    if submitted:
-        _, w_err = api_post(
-            f"/venues/{venue_id}/reviews",
-            {"userId": user_id, "rating": rating_new, "comment": comment_new},
-        )
-        if w_err:
-            st.session_state["detail_action_msg"] = ("error", w_err)
-        else:
-            st.session_state["detail_action_msg"] = ("success", "Review submitted!")
-        st.rerun()
-    if cancelled:
-        st.rerun()
-
-
-b_save, b_visit, b_review, _ = st.columns([2, 2, 2, 1])
-with b_save:
-    with st.popover("🔖 Save to list", use_container_width=True):
-        if st.button("🔖 Saved (default)", key="detail_savedflat", use_container_width=True):
-            _, err = api_post(f"/users/{user_id}/saved", {"venueId": venue_id})
-            if err:
-                if "Duplicate" in err or "1062" in err:
-                    st.session_state["detail_action_msg"] = ("info", "Already in Saved!")
-                else:
-                    st.session_state["detail_action_msg"] = ("error", err)
-            else:
-                st.session_state["detail_action_msg"] = ("success", "Saved!")
-            st.rerun()
-        if user_lists:
-            st.divider()
-            for lst in user_lists:
-                if st.button(
-                    f"📁 {lst['name']}",
-                    key=f"detail_addto_{lst['listId']}",
-                    use_container_width=True,
-                ):
-                    _, err = api_post(f"/lists/{lst['listId']}/venues", {"venueId": venue_id})
-                    if err:
-                        if "409" in err or "Duplicate" in err or "1062" in err or "already" in err.lower():
-                            st.session_state["detail_action_msg"] = ("info", f"Already in {lst['name']}!")
-                        else:
-                            st.session_state["detail_action_msg"] = ("error", err)
-                    else:
-                        st.session_state["detail_action_msg"] = ("success", f"Added to {lst['name']}!")
-                    st.rerun()
-        else:
-            st.caption("No custom lists yet. Create one from **My Lists**.")
-with b_visit:
-    if st.button("📍 Mark as Visited", key="detail_visit", use_container_width=True):
-        _, err = api_post(f"/users/{user_id}/visited", {"venueId": venue_id})
-        if err:
-            if "Duplicate" in err or "1062" in err:
-                st.session_state["detail_action_msg"] = ("info", "Already marked as visited!")
-            else:
-                st.session_state["detail_action_msg"] = ("error", err)
-        else:
-            st.session_state["detail_action_msg"] = ("success", "Marked as visited!")
-        st.rerun()
-with b_review:
-    if st.button("⭐ Leave a Review", key="detail_review", use_container_width=True):
-        leave_review_dialog()
-
-if action_msg:
-    kind, text = action_msg
-    if kind == "success":
-        st.success(text)
-    elif kind == "info":
-        st.info(text)
-    else:
-        st.error(text)
-
-
 # ── Description ───────────────────────────────────────────────────────────────
 if venue.get("description"):
     st.divider()
     st.subheader("About")
     st.write(venue["description"])
-
-
-# ── Owner posts ───────────────────────────────────────────────────────────────
-st.divider()
-st.subheader(f"Updates from the Venue ({len(posts)})")
-
-if not posts:
-    st.info("No posts yet.")
-else:
-    for p in posts:
-        content_full = p.get("content", "")
-        lines        = content_full.split("\n", 1)
-        title        = lines[0][:80]
-        body         = lines[1].strip() if len(lines) > 1 else content_full
-        post_date    = str(p.get("postDate", ""))[:10]
-
-        with st.container(border=True):
-            st.markdown(f"**{title}**")
-            if post_date:
-                st.caption(f"Posted {post_date}")
-            st.write(body)
 
 
 # ── Reviews ───────────────────────────────────────────────────────────────────
@@ -261,3 +149,24 @@ else:
                 st.markdown("_[ Review hidden — inappropriate content ]_")
             else:
                 st.write(r.get("comment") or "_No comment._")
+
+
+# ── Owner posts ───────────────────────────────────────────────────────────────
+st.divider()
+st.subheader(f"Updates from the Venue ({len(posts)})")
+
+if not posts:
+    st.info("No posts yet.")
+else:
+    for p in posts:
+        content_full = p.get("content", "")
+        lines        = content_full.split("\n", 1)
+        title        = lines[0][:80]
+        body         = lines[1].strip() if len(lines) > 1 else content_full
+        post_date    = str(p.get("postDate", ""))[:10]
+
+        with st.container(border=True):
+            st.markdown(f"**{title}**")
+            if post_date:
+                st.caption(f"Posted {post_date}")
+            st.write(body)

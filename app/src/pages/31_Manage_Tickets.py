@@ -13,6 +13,16 @@ st.caption("Review report tickets, moderate users, and approve or reject venue a
 tab_tickets, tab_users, tab_apps = st.tabs(["🎫 Report Tickets", "👤 Moderate Users", "📝 Venue Applications"])
 
 
+def format_price_whole(value):
+    """Return whole-dollar text for numeric-like values, or em dash when unavailable."""
+    if value is None or value == "":
+        return "—"
+    try:
+        return f"{float(value):.0f}"
+    except (TypeError, ValueError):
+        return "—"
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 1 — TICKETS
 # ══════════════════════════════════════════════════════════════════════════════
@@ -145,7 +155,12 @@ with tab_apps:
                         st.markdown(f"**Owner:** {app.get('ownerUsername','—')}")
                     with c2:
                         st.markdown(f"**Status:** {app.get('status')}")
-                        st.markdown(f"**Price:** ${app.get('minPrice',0):.0f}–${app.get('maxPrice',0):.0f}")
+                        min_price = format_price_whole(app.get("minPrice"))
+                        max_price = format_price_whole(app.get("maxPrice"))
+                        if min_price == "—" and max_price == "—":
+                            st.markdown("**Price:** —")
+                        else:
+                            st.markdown(f"**Price:** ${min_price}–${max_price}")
                     if app.get("description"):
                         st.markdown(f"**Description:** {app['description']}")
 
@@ -155,9 +170,14 @@ with tab_apps:
             review_id = st.number_input("Application ID", min_value=1, value=1, step=1)
             decision  = st.selectbox("Decision", ["APPROVED", "REJECTED", "PENDING"])
             if st.form_submit_button("Submit Decision", type="primary"):
-                _, r_err = api_put(f"/applications/{int(review_id)}", {"status": decision})
+                resp, r_err = api_put(f"/applications/{int(review_id)}", {"status": decision})
                 if r_err:
                     show_api_error(r_err)
                 else:
-                    st.success(f"Application {int(review_id)} marked as {decision}.")
+                    if decision == "APPROVED" and isinstance(resp, dict) and resp.get("venueId"):
+                        st.success(
+                            f"Application {int(review_id)} marked as APPROVED and venue #{resp['venueId']} was created."
+                        )
+                    else:
+                        st.success(f"Application {int(review_id)} marked as {decision}.")
                     st.rerun()

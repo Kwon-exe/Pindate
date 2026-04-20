@@ -5,6 +5,11 @@ from mysql.connector import Error
 applications = Blueprint('applications', __name__)
 
 
+def unknown_if_blank(value):
+    text = str(value).strip() if value is not None else ""
+    return text if text else "Unknown"
+
+
 # List all applications (filterable by status and ownerId) [Josh-3, Marcus-5]
 @applications.route('/', methods=['GET'])
 def get_all_applications():
@@ -15,8 +20,8 @@ def get_all_applications():
         cursor.execute(
             """
             SELECT a.applicationId, a.ownerId, u.username AS ownerUsername,
-                   a.name, a.description, a.address, a.phone,
-                   a.minPrice, a.maxPrice, a.status, a.createdAt
+                                     a.name, a.description, a.address, a.phone,
+                                     a.minPrice, a.maxPrice, a.status, a.createdAt
             FROM VenueApplications a
             LEFT JOIN Users u ON u.accountId = a.ownerId
             WHERE (%s IS NULL OR a.status = %s)
@@ -76,8 +81,8 @@ def get_application(app_id):
         cursor.execute(
             """
             SELECT a.applicationId, a.ownerId, u.username AS ownerUsername,
-                   a.name, a.description, a.address, a.phone,
-                   a.minPrice, a.maxPrice, a.status, a.createdAt
+                    a.name, a.description, a.address, a.phone,
+                    a.minPrice, a.maxPrice, a.status, a.createdAt
             FROM VenueApplications a
             LEFT JOIN Users u ON u.accountId = a.ownerId
             WHERE a.applicationId = %s
@@ -104,14 +109,64 @@ def update_application(app_id):
         status = data.get('status')
         if status not in ('APPROVED', 'REJECTED', 'PENDING'):
             return jsonify({"error": "status must be APPROVED, REJECTED, or PENDING"}), 400
+
+        cursor.execute(
+            """
+            SELECT ownerId, name, description, address, phone, minPrice, maxPrice, status
+            FROM VenueApplications
+            WHERE applicationId = %s
+            """,
+            (app_id,)
+        )
+        app_row = cursor.fetchone()
+        if not app_row:
+            return jsonify({"error": "Application not found"}), 404
+
+        new_venue_id = None
+        if status == 'APPROVED':
+            cursor.execute(
+                """
+                SELECT venueId
+                FROM Venues
+                WHERE ownerId = %s AND name = %s AND address = %s
+                ORDER BY venueId DESC
+                LIMIT 1
+                """,
+                (app_row['ownerId'], app_row['name'], app_row['address'])
+            )
+            existing = cursor.fetchone()
+            if existing:
+                new_venue_id = existing['venueId']
+            else:
+                city = "Unknown"
+
+                cursor.execute(
+                    """
+                    INSERT INTO Venues (ownerId, name, description, address, city, phoneNum, minPrice, maxPrice)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (
+                        app_row['ownerId'],
+                        unknown_if_blank(app_row.get('name')),
+                        unknown_if_blank(app_row.get('description')),
+                        unknown_if_blank(app_row.get('address')),
+                        city,
+                        unknown_if_blank(app_row.get('phone')),
+                        app_row.get('minPrice'),
+                        app_row.get('maxPrice')
+                    )
+                )
+                new_venue_id = cursor.lastrowid
+
         cursor.execute(
             "UPDATE VenueApplications SET status = %s WHERE applicationId = %s",
             (status, app_id)
         )
         get_db().commit()
-        if cursor.rowcount == 0:
-            return jsonify({"error": "Application not found"}), 404
-        return jsonify({"message": f"Application {status.lower()}"}), 200
+        resp = {"message": f"Application {status.lower()}"}
+        if new_venue_id:
+            resp["venueId"] = new_venue_id
+        return jsonify(resp), 200
     except Error as e:
         current_app.logger.error(f'Error: {e}')
         return jsonify({"error": str(e)}), 500

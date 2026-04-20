@@ -58,4 +58,4 @@ if submitted:
             logger.info("Logging in as %s (%s)", user.get('username'), user.get('role'))
             route_by_role(user.get('role'))
 
-st.caption('Use the seeded hash values from the database if you are testing locally.')
+# st.caption('Use the seeded hash values from the database if you are testing locally.')

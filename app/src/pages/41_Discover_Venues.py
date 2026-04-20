@@ -43,9 +43,9 @@ def venue_card(v, key_prefix):
     price_max = safe_float(v.get("maxPrice"))
     price_str = ""
     if price_min is not None and price_max is not None:
-        price_str = f" · ${int(price_min)}–${int(price_max)}"
+        price_str = f" · \\${int(price_min)}–\\${int(price_max)}"
     elif price_min is not None:
-        price_str = f" · From ${int(price_min)}"
+        price_str = f" · From \\${int(price_min)}"
 
     with st.container(border=True):
         left, right = st.columns([4, 1])

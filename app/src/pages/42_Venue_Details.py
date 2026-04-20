@@ -121,7 +121,7 @@ with st.container(border=True):
             st.markdown(" &nbsp; ".join([f"`{t}`" for t in tags]), unsafe_allow_html=True)
 
 
-# ── Action buttons (Save to list / Mark Visited) ──────────────────────────────
+# ── Action buttons (Save to list / Mark Visited / Leave a Review) ────────────
 user_id = st.session_state.get("user_id")
 action_msg = st.session_state.pop("detail_action_msg", None)
 
@@ -129,7 +129,33 @@ user_lists, _ = api_get(f"/users/{user_id}/lists")
 # Backend uses a reserved list named 'Visited' to back the built-in Visited bucket.
 user_lists = [l for l in (user_lists or []) if l.get("name") != "Visited"]
 
-b_save, b_visit, _ = st.columns([1, 2, 3])
+
+@st.dialog("Leave a Review")
+def leave_review_dialog():
+    st.caption(f"Reviewing **{venue.get('name', 'this venue')}**")
+    with st.form("leave_review_form", clear_on_submit=True):
+        rating_new = st.slider("Rating", 0.0, 5.0, 4.0, 0.5)
+        comment_new = st.text_area("Comment", placeholder="Share your experience...")
+        c1, c2 = st.columns(2)
+        with c1:
+            submitted = st.form_submit_button("Submit Review", type="primary", use_container_width=True)
+        with c2:
+            cancelled = st.form_submit_button("Cancel", use_container_width=True)
+    if submitted:
+        _, w_err = api_post(
+            f"/venues/{venue_id}/reviews",
+            {"userId": user_id, "rating": rating_new, "comment": comment_new},
+        )
+        if w_err:
+            st.session_state["detail_action_msg"] = ("error", w_err)
+        else:
+            st.session_state["detail_action_msg"] = ("success", "Review submitted!")
+        st.rerun()
+    if cancelled:
+        st.rerun()
+
+
+b_save, b_visit, b_review, _ = st.columns([2, 2, 2, 1])
 with b_save:
     with st.popover("🔖 Save to list", use_container_width=True):
         if st.button("🔖 Saved (default)", key="detail_savedflat", use_container_width=True):
@@ -172,6 +198,9 @@ with b_visit:
         else:
             st.session_state["detail_action_msg"] = ("success", "Marked as visited!")
         st.rerun()
+with b_review:
+    if st.button("⭐ Leave a Review", key="detail_review", use_container_width=True):
+        leave_review_dialog()
 
 if action_msg:
     kind, text = action_msg

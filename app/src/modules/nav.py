@@ -31,7 +31,7 @@ def date_seeker_pages_nav():
 # ---- Role: venue owner ------------------------------------------------------
 
 def venue_owner_home_nav():
-    st.sidebar.page_link("pages/10_Marcus_Home.py", label="Venue Owner Home", icon="🏪")
+    st.sidebar.page_link("pages/10_Venue_Owner_Home.py", label="Venue Owner Home", icon="🏪")
 
 
 def venue_owner_pages_nav():
@@ -43,7 +43,7 @@ def venue_owner_pages_nav():
 # ---- Role: data analyst -----------------------------------------------------
 
 def data_analyst_home_nav():
-    st.sidebar.page_link("pages/20_Joey_Home.py", label="Analyst Home", icon="📊")
+    st.sidebar.page_link("pages/20_Analyst_Home.py", label="Analyst Home", icon="📊")
 
 
 def data_analyst_pages_nav():
@@ -53,7 +53,7 @@ def data_analyst_pages_nav():
 # ---- Role: admin ------------------------------------------------------------
 
 def admin_home_nav():
-    st.sidebar.page_link("pages/30_Josh_Home.py", label="Admin Home", icon="🛡️")
+    st.sidebar.page_link("pages/30_Admin_Home.py", label="Admin Home", icon="🛡️")
 
 
 def admin_pages_nav():

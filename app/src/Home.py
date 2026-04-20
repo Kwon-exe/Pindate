@@ -17,11 +17,11 @@ logger.info("Loading the Home page of the app")
 
 def route_by_role(role):
     if role in ('VENUE_OWNER', 'venue_owner'):
-        st.switch_page('pages/10_Marcus_Home.py')
+        st.switch_page('pages/10_Venue_Owner_Home.py')
     elif role in ('DATA_ANALYST', 'data_analyst'):
-        st.switch_page('pages/20_Joey_Home.py')
+        st.switch_page('pages/20_Analyst_Home.py')
     elif role in ('ADMIN', 'admin'):
-        st.switch_page('pages/30_Josh_Home.py')
+        st.switch_page('pages/30_Admin_Home.py')
     else:
         st.switch_page('pages/40_Date_Seeker_Home.py')
 

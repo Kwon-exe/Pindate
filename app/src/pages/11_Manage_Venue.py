@@ -8,7 +8,7 @@ SideBarLinks(show_home=False)
 
 user_id = st.session_state.get("user_id", 4)
 
-st.title("My Venue")
+st.title("My Venues")
 
 my_venues, err = api_get(f"/users/{user_id}/venues")
 if err:

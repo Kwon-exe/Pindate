@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
 
 from modules.nav import SideBarLinks
 from modules.api_client import api_get, show_api_error
@@ -202,14 +201,20 @@ with tab5:
         df["totalReviews"] = df["totalReviews"].astype(int)
         df["totalSaves"]   = df["totalSaves"].astype(int)
 
+        def parse_utc(value):
+            if pd.isna(value):
+                return pd.NaT
+            return pd.to_datetime(value, utc=True, errors="coerce")
+
         def classify(row):
-            if row["lastReview"] is None and row["lastSave"] is None:
+            last_review = parse_utc(row.get("lastReview"))
+            last_save = parse_utc(row.get("lastSave"))
+            candidates = [ts for ts in [last_review, last_save] if not pd.isna(ts)]
+            if not candidates:
                 return "Never Active"
-            last = max(
-                pd.Timestamp(row["lastReview"]) if row["lastReview"] else pd.Timestamp.min,
-                pd.Timestamp(row["lastSave"])   if row["lastSave"]   else pd.Timestamp.min,
-            )
-            days = (pd.Timestamp.now() - last).days
+
+            last = max(candidates)
+            days = (pd.Timestamp.now(tz="UTC") - last).days
             return "Active" if days <= 30 else ("At Risk" if days <= 90 else "Inactive")
 
         df["status"] = df.apply(classify, axis=1)
